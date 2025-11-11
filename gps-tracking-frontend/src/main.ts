@@ -5,6 +5,7 @@ import router from './router'
 import vuetify from './plugins/vuetify'
 import { Toast, options } from './plugins/toast'
 import 'leaflet/dist/leaflet.css'
+import './assets/styles/custom.css'
 
 const app = createApp(App)
 

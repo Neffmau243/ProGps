@@ -5,25 +5,33 @@
     <v-main>
       <v-container fluid class="pa-4">
         <v-row justify="center">
-          <v-col cols="12" md="8" lg="6">
-            <!-- Card de Estado -->
-            <v-card class="mb-4" elevation="4">
-              <v-card-title class="text-center text-h5">
-                <v-icon size="48" :color="isTracking ? 'success' : 'error'" class="mr-2">
-                  mdi-map-marker-radius
-                </v-icon>
-                Rastreo GPS
-              </v-card-title>
+          <v-col cols="12" md="10" lg="8">
+            <!-- Card Principal de Rastreo -->
+            <v-card class="mb-4 tracking-card" elevation="12">
+              <div class="tracking-header" :class="isTracking ? 'tracking-active' : 'tracking-inactive'">
+                <div class="tracking-icon-container">
+                  <v-icon size="80" color="white" class="tracking-icon">
+                    {{ isTracking ? 'mdi-map-marker-check' : 'mdi-map-marker-off' }}
+                  </v-icon>
+                </div>
+                <h2 class="text-h4 font-weight-bold text-white mt-4">Rastreo GPS</h2>
+                <p class="text-subtitle-1 text-white-80 mt-2">
+                  {{ isTracking ? 'Sistema activo y enviando ubicación' : 'Sistema detenido' }}
+                </p>
+              </div>
 
-              <v-card-text>
-                <div class="text-center mb-4">
+              <v-card-text class="pa-8">
+                <div class="text-center mb-6">
                   <v-chip 
                     :color="isTracking ? 'success' : 'error'" 
                     size="x-large"
-                    class="px-8"
+                    class="status-chip px-8 py-6"
+                    variant="flat"
                   >
-                    <v-icon start>{{ isTracking ? 'mdi-map-marker-check' : 'mdi-map-marker-off' }}</v-icon>
-                    {{ isTracking ? '📍 Rastreando' : '⏸️ Detenido' }}
+                    <v-icon start size="large">{{ isTracking ? 'mdi-check-circle' : 'mdi-pause-circle' }}</v-icon>
+                    <span class="text-h6 font-weight-bold">
+                      {{ isTracking ? 'RASTREANDO' : 'DETENIDO' }}
+                    </span>
                   </v-chip>
                 </div>
 
@@ -32,100 +40,163 @@
                   size="x-large"
                   block
                   @click="toggleTracking"
-                  class="my-4"
-                  elevation="2"
+                  class="my-4 tracking-button"
+                  elevation="8"
+                  rounded="xl"
                 >
-                  <v-icon start>{{ isTracking ? 'mdi-stop' : 'mdi-play' }}</v-icon>
-                  {{ isTracking ? 'Detener Rastreo' : 'Iniciar Rastreo' }}
+                  <v-icon start size="large">{{ isTracking ? 'mdi-stop' : 'mdi-play' }}</v-icon>
+                  <span class="text-h6 font-weight-bold">
+                    {{ isTracking ? 'Detener Rastreo' : 'Iniciar Rastreo' }}
+                  </span>
                 </v-btn>
 
-                <v-alert v-if="!gpsService.isSupported()" type="error" class="mt-4">
+                <v-alert v-if="!gpsService.isSupported()" type="error" variant="tonal" class="mt-4">
+                  <template v-slot:prepend>
+                    <v-icon>mdi-alert-circle</v-icon>
+                  </template>
                   Tu navegador no soporta geolocalización
                 </v-alert>
               </v-card-text>
             </v-card>
 
             <!-- Información del Dispositivo -->
-            <v-card v-if="device" class="mb-4">
-              <v-card-title>
-                <v-icon class="mr-2">mdi-cellphone-link</v-icon>
-                Mi Dispositivo
-              </v-card-title>
-              <v-card-text>
-                <v-list>
-                  <v-list-item>
-                    <template v-slot:prepend>
-                      <v-icon>mdi-label</v-icon>
-                    </template>
-                    <v-list-item-title>Nombre</v-list-item-title>
-                    <v-list-item-subtitle>{{ device.name }}</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item>
-                    <template v-slot:prepend>
-                      <v-icon>mdi-barcode</v-icon>
-                    </template>
-                    <v-list-item-title>Serial</v-list-item-title>
-                    <v-list-item-subtitle>{{ device.serial }}</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item>
-                    <template v-slot:prepend>
-                      <v-icon>mdi-information</v-icon>
-                    </template>
-                    <v-list-item-title>Estado</v-list-item-title>
-                    <v-list-item-subtitle>
-                      <v-chip :color="getStatusColor(device.status)" size="small">
-                        {{ device.status }}
-                      </v-chip>
-                    </v-list-item-subtitle>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-            </v-card>
+            <v-row v-if="device">
+              <v-col cols="12" md="6">
+                <v-card class="info-card" elevation="8">
+                  <v-card-title class="bg-gradient-device text-white">
+                    <v-icon class="mr-2" color="white">mdi-cellphone-link</v-icon>
+                    <span class="font-weight-bold">Mi Dispositivo</span>
+                  </v-card-title>
+                  <v-card-text class="pa-4">
+                    <v-list class="transparent">
+                      <v-list-item class="px-0">
+                        <template v-slot:prepend>
+                          <v-avatar color="primary" size="40">
+                            <v-icon color="white">mdi-label</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-bold">Nombre</v-list-item-title>
+                        <v-list-item-subtitle class="text-h6">{{ device.name }}</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-divider class="my-2" />
+                      <v-list-item class="px-0">
+                        <template v-slot:prepend>
+                          <v-avatar color="secondary" size="40">
+                            <v-icon color="white">mdi-barcode</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-bold">Serial</v-list-item-title>
+                        <v-list-item-subtitle class="text-h6">{{ device.serial }}</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-divider class="my-2" />
+                      <v-list-item class="px-0">
+                        <template v-slot:prepend>
+                          <v-avatar :color="getStatusColor(device.status)" size="40">
+                            <v-icon color="white">mdi-information</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-bold">Estado</v-list-item-title>
+                        <v-list-item-subtitle>
+                          <v-chip :color="getStatusColor(device.status)" size="large" variant="flat">
+                            <v-icon start>mdi-circle</v-icon>
+                            {{ device.status.toUpperCase() }}
+                          </v-chip>
+                        </v-list-item-subtitle>
+                      </v-list-item>
+                    </v-list>
+                  </v-card-text>
+                </v-card>
+              </v-col>
 
-            <!-- Última Ubicación -->
-            <v-card v-if="lastLocation">
-              <v-card-title>
-                <v-icon class="mr-2">mdi-map-marker</v-icon>
-                Última Ubicación Enviada
-              </v-card-title>
-              <v-card-text>
-                <v-list>
-                  <v-list-item>
-                    <v-list-item-title>Latitud</v-list-item-title>
-                    <v-list-item-subtitle>{{ lastLocation.latitude }}</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item>
-                    <v-list-item-title>Longitud</v-list-item-title>
-                    <v-list-item-subtitle>{{ lastLocation.longitude }}</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item>
-                    <v-list-item-title>Precisión</v-list-item-title>
-                    <v-list-item-subtitle>{{ lastLocation.accuracy }} metros</v-list-item-subtitle>
-                  </v-list-item>
-                  <v-list-item>
-                    <v-list-item-title>Hora</v-list-item-title>
-                    <v-list-item-subtitle>{{ formatTime(lastLocation.timestamp) }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-            </v-card>
+              <!-- Última Ubicación -->
+              <v-col cols="12" md="6">
+                <v-card v-if="lastLocation" class="info-card" elevation="8">
+                  <v-card-title class="bg-gradient-location text-white">
+                    <v-icon class="mr-2" color="white">mdi-map-marker-check</v-icon>
+                    <span class="font-weight-bold">Última Ubicación</span>
+                  </v-card-title>
+                  <v-card-text class="pa-4">
+                    <v-list class="transparent">
+                      <v-list-item class="px-0">
+                        <template v-slot:prepend>
+                          <v-avatar color="info" size="40">
+                            <v-icon color="white">mdi-latitude</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-bold">Latitud</v-list-item-title>
+                        <v-list-item-subtitle class="text-h6">{{ lastLocation.latitude.toFixed(6) }}</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-divider class="my-2" />
+                      <v-list-item class="px-0">
+                        <template v-slot:prepend>
+                          <v-avatar color="info" size="40">
+                            <v-icon color="white">mdi-longitude</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-bold">Longitud</v-list-item-title>
+                        <v-list-item-subtitle class="text-h6">{{ lastLocation.longitude.toFixed(6) }}</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-divider class="my-2" />
+                      <v-list-item class="px-0">
+                        <template v-slot:prepend>
+                          <v-avatar color="success" size="40">
+                            <v-icon color="white">mdi-target</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-bold">Precisión</v-list-item-title>
+                        <v-list-item-subtitle class="text-h6">{{ lastLocation.accuracy.toFixed(1) }}m</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-divider class="my-2" />
+                      <v-list-item class="px-0">
+                        <template v-slot:prepend>
+                          <v-avatar color="warning" size="40">
+                            <v-icon color="white">mdi-clock-outline</v-icon>
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title class="font-weight-bold">Hora</v-list-item-title>
+                        <v-list-item-subtitle class="text-body-1">{{ formatTime(lastLocation.timestamp) }}</v-list-item-subtitle>
+                      </v-list-item>
+                    </v-list>
+                  </v-card-text>
+                </v-card>
+
+                <v-card v-else class="info-card" elevation="8">
+                  <v-card-text class="pa-8 text-center">
+                    <v-icon size="64" color="grey">mdi-map-marker-off</v-icon>
+                    <p class="text-h6 mt-4 text-grey">No hay ubicaciones enviadas aún</p>
+                    <p class="text-caption text-grey">Inicia el rastreo para ver tu ubicación</p>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
 
             <!-- Configuración -->
-            <v-card class="mt-4">
-              <v-card-title>
-                <v-icon class="mr-2">mdi-cog</v-icon>
-                Configuración
+            <v-card class="mt-4 config-card" elevation="8">
+              <v-card-title class="bg-gradient-config text-white">
+                <v-icon class="mr-2" color="white">mdi-cog</v-icon>
+                <span class="font-weight-bold">Configuración de Rastreo</span>
               </v-card-title>
-              <v-card-text>
+              <v-card-text class="pa-6">
                 <v-select
                   v-model="interval"
                   :items="intervalOptions"
                   label="Intervalo de envío"
                   variant="outlined"
                   :disabled="isTracking"
+                  prepend-inner-icon="mdi-timer-outline"
+                  color="primary"
                   hint="Cambia el intervalo solo cuando el rastreo esté detenido"
                   persistent-hint
-                />
+                  density="comfortable"
+                >
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template v-slot:prepend>
+                        <v-icon>mdi-clock-outline</v-icon>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-select>
               </v-card-text>
             </v-card>
           </v-col>
@@ -231,11 +302,125 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.v-card {
+.tracking-card {
+  border-radius: 20px !important;
+  overflow: hidden;
   transition: all 0.3s ease;
 }
 
-.v-card:hover {
+.tracking-header {
+  padding: 48px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.tracking-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: pulse-bg 3s ease-in-out infinite;
+}
+
+@keyframes pulse-bg {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.tracking-active {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.tracking-inactive {
+  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+}
+
+.tracking-icon-container {
+  display: inline-block;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+}
+
+.tracking-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.text-white-80 {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.status-chip {
+  animation: pulse-scale 2s ease-in-out infinite;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.tracking-button {
+  height: 72px !important;
+  font-size: 18px !important;
+  transition: all 0.3s ease;
+}
+
+.tracking-button:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+.info-card {
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.bg-gradient-device {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-location {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-gradient-config {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.config-card {
+  border-radius: 16px !important;
+}
+
+.transparent {
+  background: transparent !important;
+}
+
+.v-list-item {
+  transition: all 0.2s ease;
+}
+
+.v-list-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+}
+
+.v-theme--dark .v-list-item:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 </style>

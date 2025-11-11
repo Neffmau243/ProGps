@@ -4,11 +4,15 @@ import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 
+// Detectar tema inicial desde localStorage
+const savedTheme = localStorage.getItem('theme')
+const defaultTheme = savedTheme === 'dark' ? 'dark' : 'light'
+
 const vuetify = createVuetify({
   components,
   directives,
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: defaultTheme,
     themes: {
       light: {
         dark: false,

@@ -1,67 +1,104 @@
 <template>
   <v-app>
-    <v-main>
+    <v-main class="login-background">
       <v-container fluid class="fill-height">
         <v-row align="center" justify="center">
-          <v-col cols="12" sm="8" md="4">
-            <v-card elevation="12" class="pa-4">
-              <v-card-title class="text-center">
-                <v-icon size="64" color="primary" class="mb-4">mdi-map-marker-radius</v-icon>
-                <h2>GPS Tracking</h2>
-              </v-card-title>
+          <v-col cols="12" sm="8" md="5" lg="4">
+            <!-- Logo y Título -->
+            <div class="text-center mb-8 animate-fade-in">
+              <div class="logo-container">
+                <v-icon size="80" color="white" class="logo-icon">mdi-map-marker-radius</v-icon>
+              </div>
+              <h1 class="text-h3 font-weight-bold text-white mt-4 text-shadow">GPS Tracking</h1>
+              <p class="text-subtitle-1 text-white-70 mt-2">Sistema de Rastreo en Tiempo Real</p>
+            </div>
 
-              <v-card-text>
+            <!-- Card de Login -->
+            <v-card elevation="24" class="login-card animate-slide-up" rounded="xl">
+              <v-card-text class="pa-8">
+                <h2 class="text-h5 font-weight-bold text-center mb-6">Iniciar Sesión</h2>
+                
                 <v-form @submit.prevent="handleLogin">
                   <v-text-field
                     v-model="email"
-                    label="Email"
+                    label="Correo Electrónico"
                     type="email"
-                    prepend-inner-icon="mdi-email"
+                    prepend-inner-icon="mdi-email-outline"
                     variant="outlined"
                     :error-messages="errors.email"
+                    color="primary"
+                    class="mb-2"
                     required
+                    density="comfortable"
                   />
 
                   <v-text-field
                     v-model="password"
-                    label="Password"
+                    label="Contraseña"
                     :type="showPassword ? 'text' : 'password'"
-                    prepend-inner-icon="mdi-lock"
-                    :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    prepend-inner-icon="mdi-lock-outline"
+                    :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
                     @click:append-inner="showPassword = !showPassword"
                     variant="outlined"
                     :error-messages="errors.password"
+                    color="primary"
+                    class="mb-4"
                     required
+                    density="comfortable"
                   />
 
-                  <v-alert v-if="errorMessage" type="error" class="mb-4">
+                  <v-alert v-if="errorMessage" type="error" variant="tonal" class="mb-4">
+                    <template v-slot:prepend>
+                      <v-icon>mdi-alert-circle</v-icon>
+                    </template>
                     {{ errorMessage }}
                   </v-alert>
 
                   <v-btn
                     type="submit"
                     color="primary"
-                    size="large"
+                    size="x-large"
                     block
                     :loading="loading"
+                    class="mb-4 text-none font-weight-bold"
+                    elevation="2"
                   >
+                    <v-icon start>mdi-login</v-icon>
                     Iniciar Sesión
                   </v-btn>
                 </v-form>
-              </v-card-text>
 
-              <v-card-actions class="justify-center">
-                <ThemeToggle />
-              </v-card-actions>
+                <v-divider class="my-4" />
+
+                <div class="text-center">
+                  <ThemeToggle />
+                </div>
+              </v-card-text>
             </v-card>
 
-            <v-card class="mt-4 pa-4" variant="outlined">
-              <v-card-title class="text-center text-subtitle-2">
-                Credenciales de Prueba
-              </v-card-title>
-              <v-card-text class="text-caption">
-                <p><strong>Admin:</strong> admin@gps.com / admin123</p>
-                <p><strong>Empleado:</strong> juan@gps.com / empleado123</p>
+            <!-- Credenciales de Prueba -->
+            <v-card class="mt-4 animate-fade-in-delay" variant="tonal" rounded="lg">
+              <v-card-text class="pa-4">
+                <div class="text-center mb-2">
+                  <v-icon color="info" size="small">mdi-information</v-icon>
+                  <span class="text-subtitle-2 font-weight-bold ml-2">Credenciales de Prueba</span>
+                </div>
+                <v-row dense>
+                  <v-col cols="6">
+                    <v-card variant="outlined" class="pa-3">
+                      <div class="text-caption text-grey">Administrador</div>
+                      <div class="text-body-2 font-weight-bold">admin@gps.com</div>
+                      <div class="text-caption">admin123</div>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-card variant="outlined" class="pa-3">
+                      <div class="text-caption text-grey">Empleado</div>
+                      <div class="text-body-2 font-weight-bold">juan@gps.com</div>
+                      <div class="text-caption">empleado123</div>
+                    </v-card>
+                  </v-col>
+                </v-row>
               </v-card-text>
             </v-card>
           </v-col>
@@ -124,8 +161,101 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.fill-height {
+.login-background {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  animation: pulse 15s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.logo-container {
+  display: inline-block;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.logo-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.text-shadow {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.text-white-70 {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.login-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.v-theme--dark .login-card {
+  background: rgba(30, 30, 30, 0.95) !important;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out;
+}
+
+.animate-fade-in-delay {
+  animation: fadeIn 1s ease-out 0.3s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fill-height {
+  min-height: 100vh;
 }
 </style>

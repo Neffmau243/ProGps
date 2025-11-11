@@ -5,36 +5,69 @@
     
     <v-main>
       <v-container fluid class="pa-4">
-        <v-card>
-          <v-card-title>
-            <v-icon class="mr-2">mdi-account-multiple</v-icon>
-            Gestión de Usuarios
-            <v-spacer />
-            <v-btn color="primary" @click="openCreateDialog">
-              <v-icon start>mdi-plus</v-icon>
-              Crear Usuario
-            </v-btn>
-          </v-card-title>
+        <!-- Header con título y botón -->
+        <div class="d-flex align-center mb-4">
+          <div>
+            <h1 class="text-h4 font-weight-bold">
+              <v-icon size="large" color="primary" class="mr-2">mdi-account-multiple</v-icon>
+              Gestión de Usuarios
+            </h1>
+            <p class="text-subtitle-1 text-grey mt-1">Administra los usuarios del sistema</p>
+          </div>
+          <v-spacer />
+          <v-btn 
+            color="primary" 
+            @click="openCreateDialog"
+            size="large"
+            elevation="4"
+            class="create-btn"
+          >
+            <v-icon start>mdi-plus-circle</v-icon>
+            Crear Usuario
+          </v-btn>
+        </div>
 
-          <v-card-text>
+        <v-card elevation="8" class="data-card">
+          <v-card-text class="pa-0">
             <v-data-table
               :headers="headers"
               :items="users"
               :loading="loading"
               loading-text="Cargando usuarios..."
+              class="elevation-0"
             >
               <template v-slot:item.role="{ item }">
-                <v-chip :color="item.role.name === 'admin' ? 'primary' : 'secondary'" size="small">
+                <v-chip 
+                  :color="item.role.name === 'admin' ? 'primary' : 'secondary'" 
+                  size="small"
+                  variant="flat"
+                >
+                  <v-icon start size="small">{{ item.role.name === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}</v-icon>
                   {{ item.role.name }}
                 </v-chip>
               </template>
 
               <template v-slot:item.actions="{ item }">
-                <v-btn icon size="small" @click="openEditDialog(item)" class="mr-2">
+                <v-btn 
+                  icon 
+                  size="small" 
+                  @click="openEditDialog(item)" 
+                  class="mr-2"
+                  variant="tonal"
+                  color="primary"
+                >
                   <v-icon>mdi-pencil</v-icon>
+                  <v-tooltip activator="parent" location="top">Editar</v-tooltip>
                 </v-btn>
-                <v-btn icon size="small" color="error" @click="confirmDelete(item)">
+                <v-btn 
+                  icon 
+                  size="small" 
+                  color="error" 
+                  @click="confirmDelete(item)"
+                  variant="tonal"
+                >
                   <v-icon>mdi-delete</v-icon>
+                  <v-tooltip activator="parent" location="top">Eliminar</v-tooltip>
                 </v-btn>
               </template>
             </v-data-table>
@@ -44,64 +77,131 @@
     </v-main>
 
     <!-- Dialog Crear/Editar -->
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          {{ editingUser ? 'Editar Usuario' : 'Crear Usuario' }}
+    <v-dialog v-model="dialog" max-width="600px" persistent>
+      <v-card class="modal-card" elevation="24">
+        <v-card-title class="bg-gradient-primary text-white pa-6">
+          <v-icon class="mr-2" color="white">{{ editingUser ? 'mdi-account-edit' : 'mdi-account-plus' }}</v-icon>
+          <span class="text-h5 font-weight-bold">
+            {{ editingUser ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}
+          </span>
         </v-card-title>
-        <v-card-text>
+        <v-card-text class="pa-6">
           <v-form ref="form">
             <v-text-field
               v-model="formData.name"
-              label="Nombre"
+              label="Nombre Completo"
               :rules="[rules.required]"
               variant="outlined"
+              prepend-inner-icon="mdi-account-outline"
+              color="primary"
+              class="mb-2"
             />
             <v-text-field
               v-model="formData.email"
-              label="Email"
+              label="Correo Electrónico"
               type="email"
               :rules="[rules.required, rules.email]"
               variant="outlined"
+              prepend-inner-icon="mdi-email-outline"
+              color="primary"
+              class="mb-2"
             />
             <v-text-field
               v-if="!editingUser"
               v-model="formData.password"
-              label="Password"
+              label="Contraseña"
               type="password"
               :rules="[rules.required, rules.minLength]"
               variant="outlined"
+              prepend-inner-icon="mdi-lock-outline"
+              color="primary"
+              hint="Mínimo 8 caracteres"
+              persistent-hint
+              class="mb-2"
             />
             <v-select
               v-model="formData.role_id"
               :items="roles"
               item-title="name"
               item-value="id"
-              label="Rol"
+              label="Rol del Usuario"
               :rules="[rules.required]"
               variant="outlined"
-            />
+              prepend-inner-icon="mdi-shield-account-outline"
+              color="primary"
+            >
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template v-slot:prepend>
+                    <v-icon>{{ item.raw.name === 'admin' ? 'mdi-shield-crown' : 'mdi-account' }}</v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
           </v-form>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="pa-6 pt-0">
           <v-spacer />
-          <v-btn @click="dialog = false">Cancelar</v-btn>
-          <v-btn color="primary" @click="saveUser" :loading="saving">Guardar</v-btn>
+          <v-btn 
+            @click="dialog = false" 
+            size="large"
+            variant="outlined"
+          >
+            <v-icon start>mdi-close</v-icon>
+            Cancelar
+          </v-btn>
+          <v-btn 
+            color="primary" 
+            @click="saveUser" 
+            :loading="saving"
+            size="large"
+            variant="flat"
+          >
+            <v-icon start>mdi-content-save</v-icon>
+            Guardar
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Dialog Confirmar Eliminación -->
-    <v-dialog v-model="deleteDialog" max-width="400px">
-      <v-card>
-        <v-card-title>Confirmar Eliminación</v-card-title>
-        <v-card-text>
-          ¿Estás seguro de eliminar al usuario <strong>{{ userToDelete?.name }}</strong>?
+    <v-dialog v-model="deleteDialog" max-width="500px">
+      <v-card class="modal-card" elevation="24">
+        <v-card-title class="bg-gradient-error text-white pa-6">
+          <v-icon class="mr-2" color="white">mdi-alert-circle</v-icon>
+          <span class="text-h5 font-weight-bold">Confirmar Eliminación</span>
+        </v-card-title>
+        <v-card-text class="pa-6">
+          <v-alert type="warning" variant="tonal" class="mb-4">
+            <template v-slot:prepend>
+              <v-icon>mdi-alert</v-icon>
+            </template>
+            Esta acción no se puede deshacer
+          </v-alert>
+          <p class="text-h6">
+            ¿Estás seguro de eliminar al usuario <strong>{{ userToDelete?.name }}</strong>?
+          </p>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="pa-6 pt-0">
           <v-spacer />
-          <v-btn @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" @click="deleteUser" :loading="deleting">Eliminar</v-btn>
+          <v-btn 
+            @click="deleteDialog = false"
+            size="large"
+            variant="outlined"
+          >
+            <v-icon start>mdi-close</v-icon>
+            Cancelar
+          </v-btn>
+          <v-btn 
+            color="error" 
+            @click="deleteUser" 
+            :loading="deleting"
+            size="large"
+            variant="flat"
+          >
+            <v-icon start>mdi-delete</v-icon>
+            Eliminar
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -226,3 +326,33 @@ onMounted(() => {
   loadUsers()
 })
 </script>
+
+
+<style scoped>
+.data-card {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.create-btn {
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modal-card {
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-error {
+  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+}
+</style>
