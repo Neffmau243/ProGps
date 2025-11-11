@@ -26,8 +26,10 @@ class GPSService {
     }
 
     return new Promise((resolve, reject) => {
+      // Primero intentar con alta precisión
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log('📍 Ubicación obtenida (alta precisión):', position.coords)
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -36,12 +38,34 @@ class GPSService {
           })
         },
         (error) => {
-          reject(this.handleError(error))
+          console.warn('⚠️ Error con alta precisión, intentando con baja precisión...', error)
+          
+          // Si falla, intentar con baja precisión
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              console.log('📍 Ubicación obtenida (baja precisión):', position.coords)
+              resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                timestamp: new Date(position.timestamp)
+              })
+            },
+            (error2) => {
+              console.error('❌ Error obteniendo ubicación:', error2)
+              reject(this.handleError(error2))
+            },
+            {
+              enableHighAccuracy: false,
+              timeout: 30000,
+              maximumAge: 60000
+            }
+          )
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
+          timeout: 15000,
+          maximumAge: 5000
         }
       )
     })
@@ -73,9 +97,16 @@ class GPSService {
   }
 
   async sendLocation() {
+    if (!this.isTracking) {
+      console.log('⏸️ Rastreo detenido, no se enviará ubicación')
+      return
+    }
+
     try {
+      console.log('🔄 Obteniendo ubicación...')
       const location = await this.getCurrentLocation()
 
+      console.log('📤 Enviando ubicación al servidor...')
       const response = await api.post('/gps', {
         device_id: this.deviceId,
         latitude: location.latitude,
@@ -83,7 +114,11 @@ class GPSService {
         accuracy: location.accuracy
       })
 
-      console.log('✅ Ubicación enviada:', location)
+      console.log('✅ Ubicación enviada exitosamente:', {
+        lat: location.latitude,
+        lng: location.longitude,
+        accuracy: location.accuracy
+      })
 
       if (this.callbacks.onSuccess) {
         this.callbacks.onSuccess(location)
@@ -91,13 +126,15 @@ class GPSService {
 
       return response.data
     } catch (error: any) {
-      console.error('❌ Error al enviar ubicación:', error)
+      const errorMsg = error.message || error || 'Error desconocido'
+      console.error('❌ Error al enviar ubicación:', errorMsg)
 
       if (this.callbacks.onError) {
-        this.callbacks.onError(error.message || 'Error desconocido')
+        this.callbacks.onError(errorMsg)
       }
 
-      throw error
+      // No lanzar el error para que el tracking continúe
+      return null
     }
   }
 

@@ -3,8 +3,8 @@
     <AppHeader />
     <AppSidebar />
     
-    <v-main>
-      <v-container fluid class="pa-4">
+    <v-main style="overflow-y: auto; height: 100vh;">
+      <v-container fluid class="pa-4" style="padding-bottom: 80px;">
         <!-- Header con título y botón -->
         <div class="d-flex align-center mb-4">
           <div>
