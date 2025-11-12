@@ -122,37 +122,6 @@
                   <span class="font-weight-bold">Ruta Recorrida</span>
                   <v-spacer />
                   
-                  <!-- Controles de Zoom -->
-                  <v-btn-group density="compact" class="mr-2">
-                    <v-btn 
-                      size="small" 
-                      color="white" 
-                      variant="flat"
-                      @click="zoomIn"
-                      title="Acercar"
-                    >
-                      <v-icon>mdi-plus</v-icon>
-                    </v-btn>
-                    <v-btn 
-                      size="small" 
-                      color="white" 
-                      variant="flat"
-                      @click="zoomOut"
-                      title="Alejar"
-                    >
-                      <v-icon>mdi-minus</v-icon>
-                    </v-btn>
-                    <v-btn 
-                      size="small" 
-                      color="white" 
-                      variant="flat"
-                      @click="resetView"
-                      title="Ajustar vista"
-                    >
-                      <v-icon>mdi-fit-to-screen</v-icon>
-                    </v-btn>
-                  </v-btn-group>
-                  
                   <v-chip color="white" variant="flat" size="small">
                     <v-icon start size="small" color="success">mdi-circle</v-icon>
                     <span class="text-success mr-2">Inicio</span>

@@ -44,7 +44,7 @@ const endIcon = L.icon({
 
 const initMap = () => {
   map.value = L.map('route-map', {
-    zoomControl: true,
+    zoomControl: false, // Deshabilitar controles nativos de zoom
     scrollWheelZoom: true,
     doubleClickZoom: true,
     touchZoom: true,
@@ -53,14 +53,7 @@ const initMap = () => {
     dragging: true
   }).setView([-12.046374, -77.042793], 13)
 
-  // Agregar controles de zoom personalizados
-  L.control.zoom({
-    position: 'topright',
-    zoomInTitle: 'Acercar',
-    zoomOutTitle: 'Alejar'
-  }).addTo(map.value)
-
-  // Agregar control de escala
+  // Agregar control de escala (solo este)
   L.control.scale({
     position: 'bottomleft',
     metric: true,

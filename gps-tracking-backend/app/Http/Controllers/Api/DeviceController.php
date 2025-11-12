@@ -37,14 +37,17 @@ class DeviceController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
+        $validated = $request->validate([
+            'user_id' => 'nullable|exists:users,id',
             'name' => 'required|string|max:255',
             'serial' => 'required|string|unique:devices,serial',
             'status' => 'sometimes|in:activo,inactivo,mantenimiento',
         ]);
 
-        $device = Device::create($request->all());
+        // Establecer valores por defecto
+        $validated['status'] = $validated['status'] ?? 'activo';
+
+        $device = Device::create($validated);
 
         return response()->json($device->load('user'), 201);
     }
@@ -53,14 +56,14 @@ class DeviceController extends Controller
     {
         $device = Device::findOrFail($id);
 
-        $request->validate([
-            'user_id' => 'sometimes|exists:users,id',
+        $validated = $request->validate([
+            'user_id' => 'nullable|exists:users,id',
             'name' => 'sometimes|string|max:255',
             'serial' => 'sometimes|string|unique:devices,serial,' . $id,
             'status' => 'sometimes|in:activo,inactivo,mantenimiento',
         ]);
 
-        $device->update($request->all());
+        $device->update($validated);
 
         return response()->json($device->load('user'));
     }

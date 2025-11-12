@@ -14,13 +14,21 @@
                 <span class="font-weight-bold">Ubicaciones en Tiempo Real</span>
                 <v-spacer />
                 <v-chip 
-                  :color="isLoading ? 'warning' : 'success'" 
+                  :color="wsConnected ? 'success' : 'warning'" 
                   size="small"
                   variant="flat"
-                  class="pulse-chip"
+                  class="pulse-chip mr-2"
                 >
-                  <v-icon start size="small">{{ isLoading ? 'mdi-loading mdi-spin' : 'mdi-check-circle' }}</v-icon>
-                  {{ isLoading ? 'Actualizando...' : 'Actualizado' }}
+                  <v-icon start size="small">{{ wsConnected ? 'mdi-wifi' : 'mdi-wifi-off' }}</v-icon>
+                  {{ wsConnected ? 'WebSocket Activo' : 'Conectando...' }}
+                </v-chip>
+                <v-chip 
+                  color="white" 
+                  size="small"
+                  variant="flat"
+                >
+                  <v-icon start size="small" color="primary">mdi-map-marker</v-icon>
+                  <span class="text-primary font-weight-bold">{{ locations.length }}</span>
                 </v-chip>
               </v-card-title>
               <v-card-text style="height: calc(100% - 64px); padding: 0;">
@@ -128,6 +136,7 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useToast } from 'vue-toastification'
 import api from '@/services/api'
+import echo from '@/plugins/echo'
 import AppHeader from '@/components/common/AppHeader.vue'
 import AppSidebar from '@/components/common/AppSidebar.vue'
 import MapView from '@/components/maps/MapView.vue'
@@ -135,7 +144,7 @@ import MapView from '@/components/maps/MapView.vue'
 const toast = useToast()
 const locations = ref<any[]>([])
 const isLoading = ref(false)
-let updateInterval: number | null = null
+const wsConnected = ref(false)
 
 const activeDevices = computed(() => {
   return locations.value.filter(loc => loc.minutes_ago < 5).length
@@ -146,6 +155,7 @@ const loadLocations = async () => {
   try {
     const response = await api.get('/locations/current')
     locations.value = response.data
+    console.log('📍 Ubicaciones cargadas:', locations.value.length)
   } catch (error: any) {
     console.error('Error al cargar ubicaciones:', error)
     if (error.response?.status !== 401) {
@@ -156,6 +166,40 @@ const loadLocations = async () => {
   }
 }
 
+const updateMarker = (event: any) => {
+  console.log('📍 Nueva ubicación recibida vía WebSocket:', event)
+  
+  // Buscar si ya existe el dispositivo
+  const index = locations.value.findIndex(
+    loc => loc.device_id === event.deviceId
+  )
+  
+  const newLocation = {
+    device_id: event.deviceId,
+    latitude: event.latitude,
+    longitude: event.longitude,
+    accuracy: event.accuracy,
+    device_name: event.deviceName,
+    user_name: event.userName,
+    minutes_ago: 0, // Recién recibido
+    timestamp: event.timestamp
+  }
+  
+  if (index >= 0) {
+    // Actualizar ubicación existente
+    locations.value[index] = newLocation
+    toast.success(`📍 ${event.deviceName} actualizado`, {
+      timeout: 2000
+    })
+  } else {
+    // Agregar nueva ubicación
+    locations.value.push(newLocation)
+    toast.info(`🆕 ${event.deviceName} conectado`, {
+      timeout: 3000
+    })
+  }
+}
+
 const getTimeColor = (minutes: number) => {
   if (minutes < 2) return 'success'
   if (minutes < 5) return 'warning'
@@ -163,16 +207,42 @@ const getTimeColor = (minutes: number) => {
 }
 
 onMounted(() => {
+  console.log('🚀 Iniciando Dashboard Admin con WebSockets')
+  
+  // Cargar ubicaciones iniciales
   loadLocations()
-  updateInterval = window.setInterval(() => {
-    loadLocations()
-  }, 10000) // Actualizar cada 10 segundos
+  
+  // Conectar al canal de WebSocket
+  console.log('🔌 Conectando al canal "locations"...')
+  
+  const channel = echo.channel('locations')
+  
+  channel.listen('.LocationUpdated', (event: any) => {
+    console.log('✅ Evento LocationUpdated recibido:', event)
+    updateMarker(event)
+  })
+  
+  // Eventos de conexión
+  echo.connector.pusher.connection.bind('connected', () => {
+    wsConnected.value = true
+    console.log('✅ WebSocket conectado')
+    toast.success('🔌 Conectado en tiempo real', { timeout: 2000 })
+  })
+  
+  echo.connector.pusher.connection.bind('disconnected', () => {
+    wsConnected.value = false
+    console.log('❌ WebSocket desconectado')
+    toast.warning('⚠️ Desconectado del servidor', { timeout: 2000 })
+  })
+  
+  echo.connector.pusher.connection.bind('error', (err: any) => {
+    console.error('❌ Error en WebSocket:', err)
+  })
 })
 
 onBeforeUnmount(() => {
-  if (updateInterval) {
-    clearInterval(updateInterval)
-  }
+  console.log('🔌 Desconectando del canal "locations"')
+  echo.leave('locations')
 })
 </script>
 

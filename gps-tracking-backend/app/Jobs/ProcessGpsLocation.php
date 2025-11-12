@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Events\LocationUpdated;
+use App\Models\Device;
 use App\Models\GpsLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,15 +29,34 @@ class ProcessGpsLocation implements ShouldQueue
     public function handle(): void
     {
         try {
-            GpsLog::create($this->data);
+            // Guardar ubicación en la base de datos
+            $gpsLog = GpsLog::create($this->data);
 
             Log::info('Ubicación GPS guardada exitosamente', [
                 'device_id' => $this->data['device_id'],
                 'user_id' => $this->data['user_id'],
             ]);
 
-            // Aquí se puede agregar broadcast para tiempo real
-            // broadcast(new LocationUpdated($this->data));
+            // Obtener información del dispositivo y usuario para el broadcast
+            $device = Device::with('user')->find($this->data['device_id']);
+
+            if ($device && $device->user) {
+                // Emitir evento en tiempo real vía WebSocket
+                broadcast(new LocationUpdated(
+                    deviceId: $device->id,
+                    latitude: (float) $this->data['latitude'],
+                    longitude: (float) $this->data['longitude'],
+                    accuracy: (float) $this->data['accuracy'],
+                    userName: $device->user->name,
+                    deviceName: $device->name,
+                    timestamp: $this->data['timestamp']
+                ));
+
+                Log::info('Evento LocationUpdated emitido', [
+                    'device_id' => $device->id,
+                    'device_name' => $device->name,
+                ]);
+            }
 
         } catch (\Exception $e) {
             Log::error('Error al guardar ubicación GPS', [

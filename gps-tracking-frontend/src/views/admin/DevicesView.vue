@@ -121,6 +121,9 @@
               variant="outlined"
               prepend-inner-icon="mdi-account-outline"
               color="primary"
+              hint="Opcional - Puedes asignar un usuario después"
+              persistent-hint
+              clearable
               class="mb-2"
             >
               <template v-slot:item="{ props, item }">
@@ -318,7 +321,20 @@ const saveDevice = async () => {
     dialog.value = false
     loadDevices()
   } catch (error: any) {
-    toast.error(error.response?.data?.message || 'Error al guardar dispositivo')
+    console.error('Error al guardar dispositivo:', error)
+    
+    // Manejar errores de validación
+    if (error.response?.status === 422) {
+      const errors = error.response?.data?.errors
+      if (errors) {
+        const errorMessages = Object.values(errors).flat().join(', ')
+        toast.error(`Error de validación: ${errorMessages}`)
+      } else {
+        toast.error(error.response?.data?.message || 'Error de validación')
+      }
+    } else {
+      toast.error(error.response?.data?.message || 'Error al guardar dispositivo')
+    }
   } finally {
     saving.value = false
   }
