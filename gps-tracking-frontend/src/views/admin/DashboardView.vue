@@ -80,7 +80,7 @@
                           variant="flat"
                         >
                           <v-icon start size="small">mdi-clock-outline</v-icon>
-                          {{ location.minutes_ago }}m
+                          {{ formatTimeAgo(location.minutes_ago) }}
                         </v-chip>
                       </div>
                     </template>
@@ -204,6 +204,25 @@ const getTimeColor = (minutes: number) => {
   if (minutes < 2) return 'success'
   if (minutes < 5) return 'warning'
   return 'error'
+}
+
+const formatTimeAgo = (minutes: number) => {
+  const mins = Math.round(minutes)
+  
+  if (mins < 1) return 'Ahora'
+  if (mins < 60) return `${mins}m`
+  
+  const hours = Math.floor(mins / 60)
+  const remainingMins = mins % 60
+  
+  if (hours < 24) {
+    return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`
+  }
+  
+  const days = Math.floor(hours / 24)
+  const remainingHours = hours % 24
+  
+  return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`
 }
 
 onMounted(() => {

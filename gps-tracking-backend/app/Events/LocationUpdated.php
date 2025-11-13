@@ -19,6 +19,9 @@ class LocationUpdated implements ShouldBroadcast
     public string $userName;
     public string $deviceName;
     public string $timestamp;
+    public ?float $speed;
+    public ?float $heading;
+    public ?float $altitude;
 
     public function __construct(
         int $deviceId,
@@ -27,7 +30,10 @@ class LocationUpdated implements ShouldBroadcast
         float $accuracy,
         string $userName,
         string $deviceName,
-        string $timestamp
+        string $timestamp,
+        ?float $speed = null,
+        ?float $heading = null,
+        ?float $altitude = null
     ) {
         $this->deviceId = $deviceId;
         $this->latitude = $latitude;
@@ -36,6 +42,9 @@ class LocationUpdated implements ShouldBroadcast
         $this->userName = $userName;
         $this->deviceName = $deviceName;
         $this->timestamp = $timestamp;
+        $this->speed = $speed;
+        $this->heading = $heading;
+        $this->altitude = $altitude;
     }
 
     public function broadcastOn(): array
@@ -60,6 +69,9 @@ class LocationUpdated implements ShouldBroadcast
             'userName' => $this->userName,
             'deviceName' => $this->deviceName,
             'timestamp' => $this->timestamp,
+            'speed' => $this->speed,
+            'heading' => $this->heading,
+            'altitude' => $this->altitude,
         ];
     }
 }

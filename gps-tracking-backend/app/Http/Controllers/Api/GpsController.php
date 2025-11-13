@@ -16,6 +16,9 @@ class GpsController extends Controller
             'latitude' => 'required|numeric|min:-90|max:90',
             'longitude' => 'required|numeric|min:-180|max:180',
             'accuracy' => 'nullable|numeric|min:0',
+            'speed' => 'nullable|numeric|min:0',
+            'heading' => 'nullable|numeric|min:0|max:360',
+            'altitude' => 'nullable|numeric',
         ]);
 
         $device = Device::findOrFail($request->device_id);
@@ -41,6 +44,9 @@ class GpsController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'accuracy' => $request->accuracy,
+            'speed' => $request->speed,
+            'heading' => $request->heading,
+            'altitude' => $request->altitude,
             'timestamp' => now(),
         ]);
 

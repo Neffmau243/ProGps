@@ -108,7 +108,7 @@
                   <v-card class="stat-card" elevation="4">
                     <v-card-text class="text-center pa-4">
                       <v-icon size="48" color="info" class="mb-2">mdi-clock-outline</v-icon>
-                      <div class="text-h4 font-weight-bold">{{ historyData.statistics.duration_minutes }} min</div>
+                      <div class="text-h4 font-weight-bold">{{ formatDuration(historyData.statistics.duration_minutes) }}</div>
                       <div class="text-caption text-grey">Duración Total</div>
                     </v-card-text>
                   </v-card>
@@ -278,6 +278,22 @@ const routeMapRef = ref<any>(null)
 
 const formatDate = (date: string) => {
   return dayjs(date).format('DD/MM/YYYY HH:mm:ss')
+}
+
+const formatDuration = (minutes: number) => {
+  if (minutes < 1) {
+    const seconds = Math.round(minutes * 60)
+    return `${seconds} seg`
+  }
+  
+  const hours = Math.floor(minutes / 60)
+  const mins = Math.round(minutes % 60)
+  
+  if (hours > 0) {
+    return `${hours}h ${mins}min`
+  }
+  
+  return `${mins} min`
 }
 
 const loadDevices = async () => {

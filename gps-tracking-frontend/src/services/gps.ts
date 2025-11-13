@@ -7,6 +7,18 @@ interface Location {
   timestamp: Date
 }
 
+interface FullPosition {
+  coords: {
+    latitude: number
+    longitude: number
+    accuracy: number
+    speed: number | null
+    heading: number | null
+    altitude: number | null
+  }
+  timestamp: number
+}
+
 class GPSService {
   private watchId: number | null = null
   private isTracking = false
@@ -20,6 +32,41 @@ class GPSService {
     return 'geolocation' in navigator
   }
 
+  private lastPosition: FullPosition | null = null
+
+  async getFullPosition(): Promise<FullPosition> {
+    if (!this.isSupported()) {
+      throw new Error('Geolocalización no soportada')
+    }
+
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.lastPosition = {
+            coords: {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+              speed: position.coords.speed,
+              heading: position.coords.heading,
+              altitude: position.coords.altitude
+            },
+            timestamp: position.timestamp
+          }
+          resolve(this.lastPosition)
+        },
+        (error) => {
+          reject(this.handleError(error))
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 5000
+        }
+      )
+    })
+  }
+
   async getCurrentLocation(): Promise<Location> {
     if (!this.isSupported()) {
       throw new Error('Geolocalización no soportada')
@@ -29,12 +76,21 @@ class GPSService {
       // Primero intentar con alta precisión
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log('📍 Ubicación obtenida (alta precisión):', position.coords)
+          const timestamp = new Date(position.timestamp)
+          console.log('📍 Ubicación obtenida (alta precisión):', {
+            lat: position.coords.latitude.toFixed(6),
+            lng: position.coords.longitude.toFixed(6),
+            accuracy: `${position.coords.accuracy.toFixed(1)}m`,
+            speed: position.coords.speed ? `${(position.coords.speed * 3.6).toFixed(1)} km/h` : 'N/A',
+            heading: position.coords.heading ? `${position.coords.heading.toFixed(0)}°` : 'N/A',
+            altitude: position.coords.altitude ? `${position.coords.altitude.toFixed(0)}m` : 'N/A',
+            timestamp: timestamp.toLocaleTimeString('es-ES')
+          })
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy,
-            timestamp: new Date(position.timestamp)
+            timestamp: timestamp
           })
         },
         (error) => {
@@ -104,24 +160,45 @@ class GPSService {
 
     try {
       console.log('🔄 Obteniendo ubicación...')
-      const location = await this.getCurrentLocation()
+      const fullPosition = await this.getFullPosition()
 
-      console.log('📤 Enviando ubicación al servidor...')
+      console.log('📤 Enviando ubicación al servidor...', {
+        device_id: this.deviceId,
+        latitude: fullPosition.coords.latitude.toFixed(6),
+        longitude: fullPosition.coords.longitude.toFixed(6),
+        speed: fullPosition.coords.speed ? `${(fullPosition.coords.speed * 3.6).toFixed(1)} km/h` : 'NULL',
+        heading: fullPosition.coords.heading ? `${fullPosition.coords.heading.toFixed(0)}°` : 'NULL',
+        altitude: fullPosition.coords.altitude ? `${fullPosition.coords.altitude.toFixed(0)}m` : 'NULL'
+      })
+      
       const response = await api.post('/gps', {
         device_id: this.deviceId,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        accuracy: location.accuracy
+        latitude: fullPosition.coords.latitude,
+        longitude: fullPosition.coords.longitude,
+        accuracy: fullPosition.coords.accuracy,
+        speed: fullPosition.coords.speed,
+        heading: fullPosition.coords.heading,
+        altitude: fullPosition.coords.altitude
       })
 
       console.log('✅ Ubicación enviada exitosamente:', {
-        lat: location.latitude,
-        lng: location.longitude,
-        accuracy: location.accuracy
+        device_id: this.deviceId,
+        lat: fullPosition.coords.latitude.toFixed(6),
+        lng: fullPosition.coords.longitude.toFixed(6),
+        accuracy: `${fullPosition.coords.accuracy.toFixed(1)}m`,
+        speed: fullPosition.coords.speed ? `${(fullPosition.coords.speed * 3.6).toFixed(1)} km/h` : 'NULL',
+        heading: fullPosition.coords.heading ? `${fullPosition.coords.heading.toFixed(0)}°` : 'NULL',
+        altitude: fullPosition.coords.altitude ? `${fullPosition.coords.altitude.toFixed(0)}m` : 'NULL',
+        timestamp: new Date(fullPosition.timestamp).toLocaleString('es-ES')
       })
 
       if (this.callbacks.onSuccess) {
-        this.callbacks.onSuccess(location)
+        this.callbacks.onSuccess({
+          latitude: fullPosition.coords.latitude,
+          longitude: fullPosition.coords.longitude,
+          accuracy: fullPosition.coords.accuracy,
+          timestamp: new Date(fullPosition.timestamp)
+        })
       }
 
       return response.data

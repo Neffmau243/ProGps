@@ -46,10 +46,13 @@ class ProcessGpsLocation implements ShouldQueue
                     deviceId: $device->id,
                     latitude: (float) $this->data['latitude'],
                     longitude: (float) $this->data['longitude'],
-                    accuracy: (float) $this->data['accuracy'],
+                    accuracy: (float) ($this->data['accuracy'] ?? 0),
                     userName: $device->user->name,
                     deviceName: $device->name,
-                    timestamp: $this->data['timestamp']
+                    timestamp: $this->data['timestamp'],
+                    speed: isset($this->data['speed']) ? (float) $this->data['speed'] : null,
+                    heading: isset($this->data['heading']) ? (float) $this->data['heading'] : null,
+                    altitude: isset($this->data['altitude']) ? (float) $this->data['altitude'] : null
                 ));
 
                 Log::info('Evento LocationUpdated emitido', [

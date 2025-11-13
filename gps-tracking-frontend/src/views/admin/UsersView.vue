@@ -107,15 +107,14 @@
               class="mb-2"
             />
             <v-text-field
-              v-if="!editingUser"
               v-model="formData.password"
-              label="Contraseña"
+              :label="editingUser ? 'Nueva Contraseña (opcional)' : 'Contraseña'"
               type="password"
-              :rules="[rules.required, rules.minLength]"
+              :rules="editingUser ? [rules.minLengthOptional] : [rules.required, rules.minLength]"
               variant="outlined"
               prepend-inner-icon="mdi-lock-outline"
               color="primary"
-              hint="Mínimo 8 caracteres"
+              :hint="editingUser ? 'Dejar vacío para mantener la contraseña actual' : 'Mínimo 8 caracteres'"
               persistent-hint
               class="mb-2"
             />
@@ -247,7 +246,8 @@ const headers = [
 const rules = {
   required: (v: any) => !!v || 'Campo requerido',
   email: (v: string) => /.+@.+\..+/.test(v) || 'Email inválido',
-  minLength: (v: string) => v.length >= 8 || 'Mínimo 8 caracteres'
+  minLength: (v: string) => v.length >= 8 || 'Mínimo 8 caracteres',
+  minLengthOptional: (v: string) => !v || v.length >= 8 || 'Mínimo 8 caracteres si se proporciona'
 }
 
 const loadUsers = async () => {
@@ -288,7 +288,12 @@ const saveUser = async () => {
   saving.value = true
   try {
     if (editingUser.value) {
-      await api.put(`/users/${editingUser.value.id}`, formData.value)
+      // Al editar, solo enviar password si no está vacío
+      const dataToSend = { ...formData.value }
+      if (!dataToSend.password) {
+        delete dataToSend.password
+      }
+      await api.put(`/users/${editingUser.value.id}`, dataToSend)
       toast.success('Usuario actualizado exitosamente')
     } else {
       await api.post('/users', formData.value)

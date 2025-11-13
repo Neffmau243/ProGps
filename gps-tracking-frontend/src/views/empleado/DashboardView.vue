@@ -59,13 +59,53 @@
               </v-card-text>
             </v-card>
 
+            <!-- Selector de Dispositivo (si tiene múltiples) -->
+            <v-card v-if="devices.length > 1" class="mb-4 device-selector-card" elevation="8">
+              <v-card-title class="bg-gradient-selector text-white">
+                <v-icon class="mr-2" color="white">mdi-devices</v-icon>
+                <span class="font-weight-bold">Seleccionar Dispositivo</span>
+              </v-card-title>
+              <v-card-text class="pa-4">
+                <v-select
+                  v-model="selectedDeviceId"
+                  :items="devices"
+                  item-title="name"
+                  item-value="id"
+                  label="Dispositivo a rastrear"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-cellphone-link"
+                  color="primary"
+                  density="comfortable"
+                  @update:model-value="onDeviceChange"
+                  :disabled="isTracking"
+                  hint="Cambia el dispositivo solo cuando el rastreo esté detenido"
+                  persistent-hint
+                >
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template v-slot:prepend>
+                        <v-avatar :color="getStatusColor(item.raw.status)">
+                          <v-icon color="white">mdi-cellphone</v-icon>
+                        </v-avatar>
+                      </template>
+                      <template v-slot:append>
+                        <v-chip :color="getStatusColor(item.raw.status)" size="small" variant="flat">
+                          {{ item.raw.status }}
+                        </v-chip>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </v-card-text>
+            </v-card>
+
             <!-- Información del Dispositivo -->
             <v-row v-if="device">
               <v-col cols="12" md="6">
                 <v-card class="info-card" elevation="8">
                   <v-card-title class="bg-gradient-device text-white">
                     <v-icon class="mr-2" color="white">mdi-cellphone-link</v-icon>
-                    <span class="font-weight-bold">Mi Dispositivo</span>
+                    <span class="font-weight-bold">Dispositivo Activo</span>
                   </v-card-title>
                   <v-card-text class="pa-4">
                     <v-list class="transparent">
@@ -218,6 +258,8 @@ const toast = useToast()
 const isTracking = ref(false)
 const lastLocation = ref<any>(null)
 const device = ref<any>(null)
+const devices = ref<any[]>([])
+const selectedDeviceId = ref<number | null>(null)
 const interval = ref(30)
 
 const intervalOptions = [
@@ -239,12 +281,31 @@ const formatTime = (date: Date) => {
   return dayjs(date).format('DD/MM/YYYY HH:mm:ss')
 }
 
-const loadDevice = async () => {
+const loadDevices = async () => {
   try {
     const response = await api.get('/devices')
-    device.value = response.data[0]
+    devices.value = response.data
+    
+    if (devices.value.length > 0) {
+      // Seleccionar el primer dispositivo por defecto
+      selectedDeviceId.value = devices.value[0].id
+      device.value = devices.value[0]
+    } else {
+      toast.warning('No tienes dispositivos asignados')
+    }
   } catch (error) {
-    toast.error('Error al cargar dispositivo')
+    toast.error('Error al cargar dispositivos')
+  }
+}
+
+const onDeviceChange = () => {
+  device.value = devices.value.find(d => d.id === selectedDeviceId.value)
+  
+  // Si estaba rastreando, detener y reiniciar con el nuevo dispositivo
+  if (isTracking.value) {
+    gpsService.stopTracking()
+    isTracking.value = false
+    toast.info('Cambiaste de dispositivo. Inicia el rastreo nuevamente.')
   }
 }
 
@@ -280,7 +341,7 @@ const toggleTracking = () => {
 }
 
 onMounted(async () => {
-  await loadDevice()
+  await loadDevices()
 
   gpsService.onSuccess((location) => {
     lastLocation.value = location
@@ -401,6 +462,15 @@ onBeforeUnmount(() => {
 
 .bg-gradient-config {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.bg-gradient-selector {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.device-selector-card {
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
 }
 
 .config-card {
