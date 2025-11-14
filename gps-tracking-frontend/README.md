@@ -101,15 +101,20 @@ npm run type-check
 ```
 src/
 ├── components/
-│   ├── common/          # Componentes comunes
-│   └── maps/            # Componentes de mapas
+│   ├── common/          # AppHeader, AppSidebar, ThemeToggle
+│   └── maps/            # MapView, RouteMap
 ├── views/               # Vistas/Páginas
-│   ├── admin/           # Vistas de admin
-│   └── empleado/        # Vistas de empleado
-├── stores/              # Pinia stores
-├── services/            # Servicios (API, GPS)
-├── plugins/             # Plugins (Vuetify, Toast)
+│   ├── admin/           # Dashboard, Users, Devices, History
+│   ├── empleado/        # Dashboard
+│   ├── LoginView.vue
+│   ├── ProfileView.vue
+│   ├── UnauthorizedView.vue
+│   └── NotFoundView.vue
+├── stores/              # auth, theme
+├── services/            # api, gps
+├── plugins/             # vuetify, toast, echo
 ├── router/              # Configuración de rutas
+├── assets/styles/       # custom.css
 ├── App.vue              # Componente raíz
 └── main.ts              # Punto de entrada
 ```

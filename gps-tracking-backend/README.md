@@ -65,6 +65,9 @@ Ver archivo: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 ### Colección de Postman
 Importar el archivo: [GPS_Tracking_API.postman_collection.json](./GPS_Tracking_API.postman_collection.json)
 
+### Script de Prueba
+Ejecutar: `powershell -ExecutionPolicy Bypass -File test-api.ps1`
+
 ## 🗂️ Estructura del Proyecto
 
 ```
