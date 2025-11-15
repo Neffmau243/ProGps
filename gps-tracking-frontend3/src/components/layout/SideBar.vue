@@ -82,17 +82,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 
 const authStore = useAuthStore();
 const isCollapsed = ref(false);
 
+const emit = defineEmits(['create-user', 'create-device', 'toggle-collapse']);
+
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value;
+  emit('toggle-collapse', isCollapsed.value);
 };
 
-defineEmits(['create-user', 'create-device']);
+// Emitir evento inicial
+watch(() => isCollapsed.value, (value) => {
+  emit('toggle-collapse', value);
+}, { immediate: true });
 </script>
 
 <style scoped>

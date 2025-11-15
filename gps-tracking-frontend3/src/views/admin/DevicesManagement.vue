@@ -139,46 +139,70 @@
       >
         <form @submit.prevent="handleSubmit" class="device-form">
           <div class="form-group">
-            <label for="name" class="form-label">Nombre del Dispositivo</label>
-            <input
-              id="name"
-              v-model="formData.name"
-              type="text"
-              class="form-input"
-              placeholder="Ej: Dispositivo GPS 001"
-              required
-            />
+            <label for="name" class="form-label">
+              <i class="bi bi-phone"></i>
+              Nombre del Dispositivo
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-phone input-icon"></i>
+              <input
+                id="name"
+                v-model="formData.name"
+                type="text"
+                class="form-input with-icon"
+                placeholder="Ej: Dispositivo GPS 001"
+                required
+              />
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="serial_number" class="form-label">Número de Serie</label>
-            <input
-              id="serial_number"
-              v-model="formData.serial"
-              type="text"
-              class="form-input"
-              placeholder="Ej: GPS-12345-ABCDE"
-              required
-            />
+            <label for="serial_number" class="form-label">
+              <i class="bi bi-upc-scan"></i>
+              Número de Serie
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-upc-scan input-icon"></i>
+              <input
+                id="serial_number"
+                v-model="formData.serial"
+                type="text"
+                class="form-input with-icon"
+                placeholder="Ej: GPS-12345-ABCDE"
+                required
+              />
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="status" class="form-label">Estado</label>
-            <select id="status" v-model="formData.status" class="form-input" required>
-              <option value="activo">Activo</option>
-              <option value="inactivo">Inactivo</option>
-              <option value="mantenimiento">En Mantenimiento</option>
-            </select>
+            <label for="status" class="form-label">
+              <i class="bi bi-toggle-on"></i>
+              Estado
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-toggle-on input-icon"></i>
+              <select id="status" v-model="formData.status" class="form-input with-icon" required>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+                <option value="mantenimiento">En Mantenimiento</option>
+              </select>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="user_id" class="form-label">Asignar a Usuario (Opcional)</label>
-            <select id="user_id" v-model="formData.user_id" class="form-input">
-              <option :value="null">Sin asignar</option>
-              <option v-for="user in availableUsers" :key="user.id" :value="user.id">
-                {{ user.name }} ({{ user.email }})
-              </option>
-            </select>
+            <label for="user_id" class="form-label">
+              <i class="bi bi-person-check"></i>
+              Asignar a Usuario (Opcional)
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-person-check input-icon"></i>
+              <select id="user_id" v-model="formData.user_id" class="form-input with-icon">
+                <option :value="null">Sin asignar</option>
+                <option v-for="user in availableUsers" :key="user.id" :value="user.id">
+                  {{ user.name }} ({{ user.email }})
+                </option>
+              </select>
+            </div>
           </div>
 
           <div v-if="formError" class="form-error">
@@ -189,6 +213,7 @@
 
         <template #footer>
           <button type="button" class="btn-secondary" @click="closeModal">
+            <i class="bi bi-x-circle"></i>
             Cancelar
           </button>
           <button 
@@ -198,6 +223,7 @@
             :disabled="isSubmitting"
           >
             <span v-if="!isSubmitting">
+              <i :class="['bi', modalMode === 'create' ? 'bi-plus-circle' : 'bi-check-circle']"></i>
               {{ modalMode === 'create' ? 'Crear Dispositivo' : 'Guardar Cambios' }}
             </span>
             <span v-else class="spinner"></span>

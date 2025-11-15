@@ -118,7 +118,7 @@ const initMap = () => {
     metric: true,
     imperial: false,
     maxWidth: 200
-  }).addTo(map.value);
+  }).addTo(map.value as any);
 };
 
 const drawRoute = (locations: Location[]) => {
@@ -130,14 +130,14 @@ const drawRoute = (locations: Location[]) => {
   console.log('Dibujando ruta con', locations.length, 'puntos');
 
   // Limpiar elementos anteriores
-  if (polyline.value) {
-    map.value.removeLayer(polyline.value);
+  if (polyline.value && map.value) {
+    (map.value as any).removeLayer(polyline.value);
   }
-  if (startMarker.value) {
-    map.value.removeLayer(startMarker.value);
+  if (startMarker.value && map.value) {
+    (map.value as any).removeLayer(startMarker.value);
   }
-  if (endMarker.value) {
-    map.value.removeLayer(endMarker.value);
+  if (endMarker.value && map.value) {
+    (map.value as any).removeLayer(endMarker.value);
   }
 
   // Convertir ubicaciones a coordenadas
@@ -156,65 +156,71 @@ const drawRoute = (locations: Location[]) => {
 
   // Marcador de inicio (verde neón)
   const firstLocation = locations[0];
-  const firstLat = typeof firstLocation.latitude === 'string' ? parseFloat(firstLocation.latitude) : firstLocation.latitude;
-  const firstLng = typeof firstLocation.longitude === 'string' ? parseFloat(firstLocation.longitude) : firstLocation.longitude;
-  
-  startMarker.value = L.marker([firstLat, firstLng], { icon: startIcon })
-    .addTo(map.value as any);
+  if (firstLocation) {
+    const firstLat = typeof firstLocation.latitude === 'string' ? parseFloat(firstLocation.latitude) : firstLocation.latitude;
+    const firstLng = typeof firstLocation.longitude === 'string' ? parseFloat(firstLocation.longitude) : firstLocation.longitude;
+    
+    startMarker.value = L.marker([firstLat, firstLng], { icon: startIcon })
+      .addTo(map.value as any);
 
-  startMarker.value.bindPopup(`
-    <div style="
-      background-color: #000;
-      color: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #C0F11C;
-      min-width: 200px;
-    ">
-      <h3 style="margin: 0 0 8px 0; color: #C0F11C; font-size: 16px;">
-        🟢 Punto de Inicio
-      </h3>
-      <p style="margin: 4px 0; font-size: 13px;">
-        <strong style="color: #C0F11C;">🕐 Hora:</strong> ${formatTime(firstLocation.timestamp)}
-      </p>
-      ${firstLocation.accuracy ? `
+    startMarker.value.bindPopup(`
+      <div style="
+        background-color: #000;
+        color: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #C0F11C;
+        min-width: 200px;
+      ">
+        <h3 style="margin: 0 0 8px 0; color: #C0F11C; font-size: 16px;">
+          <span style="display: inline-block; width: 12px; height: 12px; background: #C0F11C; border-radius: 50%; margin-right: 6px;"></span>
+          Punto de Inicio
+        </h3>
         <p style="margin: 4px 0; font-size: 13px;">
-          <strong style="color: #C0F11C;">🎯 Precisión:</strong> ${firstLocation.accuracy}m
+          <strong style="color: #C0F11C;">⏰ Hora:</strong> ${formatTime(firstLocation.timestamp)}
         </p>
-      ` : ''}
-    </div>
-  `);
+        ${firstLocation.accuracy ? `
+          <p style="margin: 4px 0; font-size: 13px;">
+            <strong style="color: #C0F11C;">🎯 Precisión:</strong> ${firstLocation.accuracy}m
+          </p>
+        ` : ''}
+      </div>
+    `);
+  }
 
   // Marcador de fin (rojo)
   const lastLocation = locations[locations.length - 1];
-  const lastLat = typeof lastLocation.latitude === 'string' ? parseFloat(lastLocation.latitude) : lastLocation.latitude;
-  const lastLng = typeof lastLocation.longitude === 'string' ? parseFloat(lastLocation.longitude) : lastLocation.longitude;
-  
-  endMarker.value = L.marker([lastLat, lastLng], { icon: endIcon })
-    .addTo(map.value as any);
+  if (lastLocation) {
+    const lastLat = typeof lastLocation.latitude === 'string' ? parseFloat(lastLocation.latitude) : lastLocation.latitude;
+    const lastLng = typeof lastLocation.longitude === 'string' ? parseFloat(lastLocation.longitude) : lastLocation.longitude;
+    
+    endMarker.value = L.marker([lastLat, lastLng], { icon: endIcon })
+      .addTo(map.value as any);
 
-  endMarker.value.bindPopup(`
-    <div style="
-      background-color: #000;
-      color: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #FF4444;
-      min-width: 200px;
-    ">
-      <h3 style="margin: 0 0 8px 0; color: #FF4444; font-size: 16px;">
-        🔴 Punto Final
-      </h3>
-      <p style="margin: 4px 0; font-size: 13px;">
-        <strong style="color: #FF4444;">🕐 Hora:</strong> ${formatTime(lastLocation.timestamp)}
-      </p>
-      ${lastLocation.accuracy ? `
+    endMarker.value.bindPopup(`
+      <div style="
+        background-color: #000;
+        color: #fff;
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #FF4444;
+        min-width: 200px;
+      ">
+        <h3 style="margin: 0 0 8px 0; color: #FF4444; font-size: 16px;">
+          <span style="display: inline-block; width: 12px; height: 12px; background: #FF4444; border-radius: 50%; margin-right: 6px;"></span>
+          Punto Final
+        </h3>
         <p style="margin: 4px 0; font-size: 13px;">
-          <strong style="color: #FF4444;">🎯 Precisión:</strong> ${lastLocation.accuracy}m
+          <strong style="color: #FF4444;">⏰ Hora:</strong> ${formatTime(lastLocation.timestamp)}
         </p>
-      ` : ''}
-    </div>
-  `);
+        ${lastLocation.accuracy ? `
+          <p style="margin: 4px 0; font-size: 13px;">
+            <strong style="color: #FF4444;">🎯 Precisión:</strong> ${lastLocation.accuracy}m
+          </p>
+        ` : ''}
+      </div>
+    `);
+  }
 
   // Ajustar vista para mostrar toda la ruta
   map.value.fitBounds(polyline.value.getBounds(), { 

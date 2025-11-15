@@ -3,7 +3,10 @@
     <div class="route-history">
       <!-- Hero Section -->
       <div class="hero-section">
-        <h1 class="hero-title">📍 Historial de Ubicaciones</h1>
+        <h1 class="hero-title">
+          <i class="bi bi-clock-history"></i>
+          Historial de Ubicaciones
+        </h1>
         <p class="hero-subtitle">Consulta rutas y trayectorias de dispositivos GPS</p>
       </div>
 
@@ -55,7 +58,10 @@
               @click="loadHistory"
               :disabled="isLoading || !selectedDevice"
             >
-              <span v-if="!isLoading">🔍 Buscar</span>
+              <span v-if="!isLoading">
+                <i class="bi bi-search"></i>
+                Buscar
+              </span>
               <span v-else class="loading-dots">Buscando</span>
             </button>
           </div>
@@ -64,10 +70,15 @@
 
       <!-- No Data Message -->
       <div v-if="!historyData && !isLoading" class="info-card">
-        <div class="info-icon">🗺️</div>
+        <div class="info-icon">
+          <i class="bi bi-map"></i>
+        </div>
         <h3 class="info-title">Selecciona un dispositivo y rango de fechas</h3>
         <p class="info-text">Podrás ver la ruta completa en el mapa y las estadísticas del recorrido</p>
-        <p class="info-tip">💡 Tip: Asegúrate de que el empleado haya enviado ubicaciones desde su dashboard</p>
+        <p class="info-tip">
+          <i class="bi bi-lightbulb"></i>
+          Tip: Asegúrate de que el empleado haya enviado ubicaciones desde su dashboard
+        </p>
       </div>
 
       <!-- Loading State -->
@@ -81,11 +92,13 @@
         <!-- Device Info Card -->
         <div class="device-info-card">
           <div class="device-header">
-            <div class="device-icon">📱</div>
+            <div class="device-icon">
+              <i class="bi bi-phone"></i>
+            </div>
             <div class="device-details">
               <h2 class="device-name">{{ historyData.device.name }}</h2>
               <p class="device-user">
-                <span class="user-icon">👤</span>
+                <i class="bi bi-person"></i>
                 Usuario: {{ historyData.device.user_name }}
               </p>
             </div>
@@ -95,7 +108,7 @@
         <!-- Statistics -->
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon">📍</div>
+            <i class="bi bi-geo-alt stat-icon"></i>
             <div class="stat-content">
               <div class="stat-value">{{ historyData.statistics.total_points }}</div>
               <div class="stat-label">Puntos Registrados</div>
@@ -103,7 +116,7 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">🛣️</div>
+            <i class="bi bi-sign-turn-right stat-icon"></i>
             <div class="stat-content">
               <div class="stat-value">{{ historyData.statistics.distance_km }} km</div>
               <div class="stat-label">Distancia Recorrida</div>
@@ -111,7 +124,7 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
+            <i class="bi bi-stopwatch stat-icon"></i>
             <div class="stat-content">
               <div class="stat-value">{{ formatDuration(historyData.statistics.duration_minutes) }}</div>
               <div class="stat-label">Duración Total</div>
@@ -123,7 +136,7 @@
         <div class="map-section">
           <div class="map-header">
             <h2 class="section-title">
-              <span class="title-icon">🗺️</span>
+              <i class="bi bi-map title-icon"></i>
               Ruta Recorrida
             </h2>
             <div class="map-legend">
@@ -150,7 +163,7 @@
         <div class="locations-section">
           <div class="locations-header">
             <h2 class="section-title">
-              <span class="title-icon">📋</span>
+              <i class="bi bi-list-ul title-icon"></i>
               Detalle de Ubicaciones
             </h2>
             <div class="locations-badge">
@@ -170,16 +183,16 @@
               </div>
               <div class="location-details">
                 <div class="location-coords">
-                  <span class="coord-label">📍</span>
+                  <i class="bi bi-geo-alt coord-label"></i>
                   <span class="coord-value">{{ location.latitude }}, {{ location.longitude }}</span>
                 </div>
                 <div class="location-meta">
                   <span class="meta-item">
-                    <span class="meta-icon">🕐</span>
+                    <i class="bi bi-clock meta-icon"></i>
                     {{ formatDate(location.timestamp) }}
                   </span>
                   <span class="meta-item accuracy">
-                    <span class="meta-icon">🎯</span>
+                    <i class="bi bi-bullseye meta-icon"></i>
                     {{ location.accuracy }}m
                   </span>
                 </div>
@@ -191,11 +204,16 @@
 
       <!-- No Locations Found -->
       <div v-if="historyData && (!historyData.locations || historyData.locations.length === 0)" class="warning-card">
-        <div class="warning-icon">⚠️</div>
+        <div class="warning-icon">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
         <h3 class="warning-title">No se encontraron ubicaciones</h3>
         <p class="warning-text">No hay registros GPS para este dispositivo en el rango de fechas seleccionado.</p>
         <div class="warning-tips">
-          <p class="tips-title">💡 Asegúrate de que:</p>
+          <p class="tips-title">
+            <i class="bi bi-lightbulb"></i>
+            Asegúrate de que:
+          </p>
           <ul class="tips-list">
             <li>El empleado haya activado el rastreo GPS</li>
             <li>Las fechas seleccionadas sean correctas</li>

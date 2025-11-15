@@ -56,6 +56,16 @@
             Ubicaciones en Tiempo Real
           </h2>
           <div class="map-header-right">
+            <!-- Botón de gestión de checkpoints -->
+            <button 
+              class="checkpoint-btn"
+              @click="toggleCheckpointsPanel"
+              title="Gestionar Checkpoints"
+            >
+              <i class="bi bi-flag"></i>
+              <span>Checkpoints ({{ checkpoints.length }})</span>
+            </button>
+            
             <div 
               class="ws-status" 
               :class="{ connected: wsConnected, disconnected: !wsConnected }"
@@ -77,20 +87,105 @@
           <!-- Mapa -->
           <div class="map-container-wrapper">
             <MapView 
-              v-if="currentLocations.length > 0" 
               :locations="currentLocations"
+              :show-checkpoints="true"
+              :allow-create-checkpoint="true"
+              @checkpoint-created="handleCheckpointFromMap"
             />
-            <div v-else class="map-placeholder">
-              <div class="placeholder-content">
-                <i class="bi bi-geo-alt placeholder-icon"></i>
-                <h3>Sin Ubicaciones</h3>
-                <p>No hay dispositivos reportando ubicación en este momento</p>
+          </div>
+
+          <!-- Panel lateral - Checkpoints o Dispositivos -->
+          <div v-if="showCheckpointsPanel" class="checkpoints-panel">
+            <div class="panel-header">
+              <h3 class="panel-title">
+                <i class="bi bi-flag panel-icon"></i>
+                Checkpoints
+              </h3>
+              <div class="panel-actions">
+                <button 
+                  class="panel-action-btn success"
+                  @click="openCheckpointModal(null)"
+                  title="Crear Checkpoint"
+                >
+                  <i class="bi bi-plus-circle"></i>
+                </button>
+                <button 
+                  class="panel-action-btn"
+                  @click="showCheckpointsPanel = false"
+                  title="Ver Dispositivos"
+                >
+                  <i class="bi bi-phone"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="checkpoints-list">
+              <div 
+                v-for="checkpoint in checkpoints" 
+                :key="checkpoint.id"
+                class="checkpoint-item"
+                :class="{ inactive: !checkpoint.active }"
+              >
+                <div 
+                  class="checkpoint-marker"
+                  :style="{ backgroundColor: checkpoint.color }"
+                >
+                  <i class="bi bi-flag"></i>
+                </div>
+                <div class="checkpoint-info">
+                  <div class="checkpoint-name">{{ checkpoint.name }}</div>
+                  <div class="checkpoint-details">
+                    <span class="detail-item">
+                      <i class="bi bi-circle"></i>
+                      {{ checkpoint.radius }}m
+                    </span>
+                    <span 
+                      class="detail-item status"
+                      :class="{ active: checkpoint.active }"
+                    >
+                      <i :class="['bi', checkpoint.active ? 'bi-check-circle' : 'bi-x-circle']"></i>
+                      {{ checkpoint.active ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="checkpoint-actions">
+                  <button 
+                    class="action-icon-btn"
+                    @click="toggleCheckpointStatus(checkpoint.id)"
+                    :title="checkpoint.active ? 'Desactivar' : 'Activar'"
+                  >
+                    <i :class="['bi', checkpoint.active ? 'bi-toggle-on' : 'bi-toggle-off']"></i>
+                  </button>
+                  <button 
+                    class="action-icon-btn"
+                    @click="openCheckpointModal(checkpoint)"
+                    title="Editar"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button 
+                    class="action-icon-btn danger"
+                    @click="confirmDeleteCheckpoint(checkpoint.id)"
+                    title="Eliminar"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="checkpoints.length === 0" class="no-checkpoints">
+                <i class="bi bi-info-circle no-checkpoints-icon"></i>
+                <p>No hay checkpoints creados</p>
+                <button class="create-first-btn" @click="openCheckpointModal(null)">
+                  <i class="bi bi-plus-circle"></i>
+                  Crear Primer Checkpoint
+                </button>
               </div>
             </div>
           </div>
 
           <!-- Panel lateral - Dispositivos activos -->
-          <div class="devices-panel">
+          <div v-else class="devices-panel">
             <div class="panel-header">
               <h3 class="panel-title">
                 <i class="bi bi-phone panel-icon"></i>
@@ -161,6 +256,15 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Checkpoints -->
+    <CheckpointModal
+      :is-open="isCheckpointModalOpen"
+      :checkpoint="selectedCheckpoint"
+      :prefilled-coords="prefilledCoords"
+      @close="closeCheckpointModal"
+      @submit="handleCheckpointSubmit"
+    />
   </MainLayout>
 </template>
 
@@ -168,15 +272,95 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import MainLayout from '@/components/layout/MainLayout.vue';
 import MapView from '@/components/maps/MapView.vue';
+import CheckpointModal from '@/components/modals/CheckpointModal.vue';
 import { useUsersStore } from '@/stores/usersStore';
 import { useDevicesStore } from '@/stores/devicesStore';
 import { locationsService } from '@/services/locationsService';
+import { useCheckpoints, type Checkpoint } from '@/composables/useCheckpoints';
 
 const usersStore = useUsersStore();
 const devicesStore = useDevicesStore();
 const isLoading = ref(true);
 const currentLocations = ref<any[]>([]);
 const wsConnected = ref(false);
+
+// Checkpoints
+const { 
+  checkpoints, 
+  createCheckpoint, 
+  updateCheckpoint, 
+  deleteCheckpoint,
+  toggleCheckpoint 
+} = useCheckpoints();
+
+const showCheckpointsPanel = ref(false);
+const isCheckpointModalOpen = ref(false);
+const selectedCheckpoint = ref<Checkpoint | null>(null);
+const prefilledCoords = ref<{ latitude: number; longitude: number } | null>(null);
+
+// Funciones de gestión de checkpoints
+const toggleCheckpointsPanel = () => {
+  showCheckpointsPanel.value = !showCheckpointsPanel.value;
+};
+
+const openCheckpointModal = (checkpoint: Checkpoint | null) => {
+  selectedCheckpoint.value = checkpoint;
+  prefilledCoords.value = null;
+  isCheckpointModalOpen.value = true;
+};
+
+const handleCheckpointFromMap = (coords: { latitude: number; longitude: number }) => {
+  // Abrir modal con las coordenadas del clic
+  selectedCheckpoint.value = null;
+  prefilledCoords.value = coords;
+  isCheckpointModalOpen.value = true;
+  console.log('🗺️ Checkpoint desde mapa:', coords);
+};
+
+const closeCheckpointModal = () => {
+  isCheckpointModalOpen.value = false;
+  selectedCheckpoint.value = null;
+  prefilledCoords.value = null;
+};
+
+const handleCheckpointSubmit = async (data: Omit<Checkpoint, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  try {
+    if (selectedCheckpoint.value) {
+      // Editar checkpoint existente
+      await updateCheckpoint(selectedCheckpoint.value.id, data);
+      console.log('✏️ Checkpoint actualizado:', data.name);
+    } else {
+      // Crear nuevo checkpoint
+      const newCheckpoint = await createCheckpoint(data);
+      console.log('✅ Nuevo checkpoint creado:', newCheckpoint.name);
+    }
+    closeCheckpointModal();
+  } catch (error) {
+    console.error('Error al guardar checkpoint:', error);
+    alert('Error al guardar el checkpoint. Por favor intenta de nuevo.');
+  }
+};
+
+const toggleCheckpointStatus = async (id: string) => {
+  try {
+    const active = await toggleCheckpoint(id);
+    console.log(`🔄 Checkpoint ${active ? 'activado' : 'desactivado'}`);
+  } catch (error) {
+    console.error('Error al cambiar estado del checkpoint:', error);
+  }
+};
+
+const confirmDeleteCheckpoint = async (id: string) => {
+  if (confirm('¿Estás seguro de eliminar este checkpoint?')) {
+    try {
+      await deleteCheckpoint(id);
+      console.log('🗑️ Checkpoint eliminado');
+    } catch (error) {
+      console.error('Error al eliminar checkpoint:', error);
+      alert('Error al eliminar el checkpoint. Por favor intenta de nuevo.');
+    }
+  }
+};
 
 const statistics = computed(() => {
   const users = usersStore.users;
@@ -440,6 +624,33 @@ onBeforeUnmount(() => {
   font-size: var(--font-size-base);
 }
 
+/* Checkpoint Button */
+.checkpoint-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: rgba(192, 241, 28, 0.1);
+  border: 2px solid var(--color-neon-green);
+  border-radius: var(--radius-full);
+  color: var(--color-neon-green);
+  font-weight: var(--font-medium);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.checkpoint-btn:hover {
+  background-color: var(--color-neon-green);
+  color: var(--color-black);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(192, 241, 28, 0.3);
+}
+
+.badge-count {
+  font-size: var(--font-size-base);
+}
+
 /* Map Grid */
 .map-grid {
   display: grid;
@@ -667,6 +878,200 @@ onBeforeUnmount(() => {
 
 .no-devices p {
   font-size: var(--font-size-sm);
+}
+
+/* Checkpoints Panel */
+.checkpoints-panel {
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.panel-action-btn {
+  width: 36px;
+  height: 36px;
+  background-color: transparent;
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.panel-action-btn:hover {
+  border-color: var(--color-neon-green);
+  background-color: rgba(192, 241, 28, 0.1);
+  color: var(--color-neon-green);
+}
+
+.panel-action-btn.success {
+  border-color: var(--color-neon-green);
+  color: var(--color-neon-green);
+}
+
+.panel-action-btn.success:hover {
+  background-color: var(--color-neon-green);
+  color: var(--color-black);
+}
+
+/* Checkpoints List */
+.checkpoints-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-sm);
+}
+
+.checkpoint-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background-color: rgba(192, 241, 28, 0.03);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  transition: all var(--transition-base);
+}
+
+.checkpoint-item:hover {
+  background-color: rgba(192, 241, 28, 0.08);
+  border-color: var(--border-hover);
+}
+
+.checkpoint-item.inactive {
+  opacity: 0.5;
+}
+
+.checkpoint-marker {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border: 3px solid var(--color-black);
+  flex-shrink: 0;
+  color: var(--color-black);
+}
+
+.checkpoint-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkpoint-name {
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkpoint-details {
+  display: flex;
+  gap: var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.detail-item.status {
+  font-weight: var(--font-medium);
+}
+
+.detail-item.status.active {
+  color: var(--color-active);
+}
+
+.checkpoint-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.action-icon-btn {
+  width: 32px;
+  height: 32px;
+  background-color: transparent;
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  font-size: var(--font-size-lg);
+}
+
+.action-icon-btn:hover {
+  border-color: var(--color-neon-green);
+  background-color: rgba(192, 241, 28, 0.1);
+  color: var(--color-neon-green);
+}
+
+.action-icon-btn.danger:hover {
+  border-color: var(--color-inactive);
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--color-inactive);
+}
+
+.no-checkpoints {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--color-text-muted);
+}
+
+.no-checkpoints-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: var(--space-md);
+  opacity: 0.3;
+}
+
+.no-checkpoints p {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.create-first-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--color-neon-green);
+  border: 2px solid var(--color-neon-green);
+  border-radius: var(--radius-md);
+  color: var(--color-black);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.create-first-btn:hover {
+  background-color: #a8cc17;
+  border-color: #a8cc17;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(192, 241, 28, 0.3);
 }
 
 /* Section */

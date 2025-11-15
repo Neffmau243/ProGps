@@ -121,62 +121,90 @@
       >
         <form @submit.prevent="handleSubmit" class="user-form">
           <div class="form-group">
-            <label for="name" class="form-label">Nombre Completo</label>
-            <input
-              id="name"
-              v-model="formData.name"
-              type="text"
-              class="form-input"
-              placeholder="Juan Pérez"
-              required
-            />
+            <label for="name" class="form-label">
+              <i class="bi bi-person"></i>
+              Nombre Completo
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-person input-icon"></i>
+              <input
+                id="name"
+                v-model="formData.name"
+                type="text"
+                class="form-input with-icon"
+                placeholder="Juan Pérez"
+                required
+              />
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="email" class="form-label">Correo Electrónico</label>
-            <input
-              id="email"
-              v-model="formData.email"
-              type="email"
-              class="form-input"
-              placeholder="usuario@ejemplo.com"
-              required
-            />
+            <label for="email" class="form-label">
+              <i class="bi bi-envelope"></i>
+              Correo Electrónico
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-envelope input-icon"></i>
+              <input
+                id="email"
+                v-model="formData.email"
+                type="email"
+                class="form-input with-icon"
+                placeholder="usuario@ejemplo.com"
+                required
+              />
+            </div>
           </div>
 
           <div class="form-group">
             <label for="password" class="form-label">
+              <i class="bi bi-lock"></i>
               {{ modalMode === 'create' ? 'Contraseña' : 'Nueva Contraseña (dejar vacío para no cambiar)' }}
             </label>
-            <input
-              id="password"
-              v-model="formData.password"
-              type="password"
-              class="form-input"
-              placeholder="••••••••"
-              :required="modalMode === 'create'"
-            />
+            <div class="input-with-icon">
+              <i class="bi bi-lock input-icon"></i>
+              <input
+                id="password"
+                v-model="formData.password"
+                type="password"
+                class="form-input with-icon"
+                placeholder="••••••••"
+                :required="modalMode === 'create'"
+              />
+            </div>
           </div>
 
           <div v-if="modalMode === 'create' || formData.password" class="form-group">
-            <label for="password_confirmation" class="form-label">Confirmar Contraseña</label>
-            <input
-              id="password_confirmation"
-              v-model="formData.password_confirmation"
-              type="password"
-              class="form-input"
-              placeholder="••••••••"
-              :required="modalMode === 'create' || !!formData.password"
-            />
+            <label for="password_confirmation" class="form-label">
+              <i class="bi bi-shield-check"></i>
+              Confirmar Contraseña
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-shield-check input-icon"></i>
+              <input
+                id="password_confirmation"
+                v-model="formData.password_confirmation"
+                type="password"
+                class="form-input with-icon"
+                placeholder="••••••••"
+                :required="modalMode === 'create' || !!formData.password"
+              />
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="role" class="form-label">Rol</label>
-            <select id="role" v-model="formData.role" class="form-input" required>
-              <option value="">Selecciona un rol</option>
-              <option value="admin">Administrador</option>
-              <option value="employee">Empleado</option>
-            </select>
+            <label for="role" class="form-label">
+              <i class="bi bi-award"></i>
+              Rol
+            </label>
+            <div class="input-with-icon">
+              <i class="bi bi-award input-icon"></i>
+              <select id="role" v-model="formData.role" class="form-input with-icon" required>
+                <option value="">Selecciona un rol</option>
+                <option value="admin">Administrador</option>
+                <option value="employee">Empleado</option>
+              </select>
+            </div>
           </div>
 
           <div v-if="formError" class="form-error">
@@ -187,6 +215,7 @@
 
         <template #footer>
           <button type="button" class="btn-secondary" @click="closeModal">
+            <i class="bi bi-x-circle"></i>
             Cancelar
           </button>
           <button 
@@ -196,6 +225,7 @@
             :disabled="isSubmitting"
           >
             <span v-if="!isSubmitting">
+              <i :class="['bi', modalMode === 'create' ? 'bi-plus-circle' : 'bi-check-circle']"></i>
               {{ modalMode === 'create' ? 'Crear Usuario' : 'Guardar Cambios' }}
             </span>
             <span v-else class="spinner"></span>

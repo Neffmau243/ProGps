@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CheckpointController;
 use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\GpsController;
 use App\Http\Controllers\Api\LocationController;
@@ -43,5 +44,15 @@ Route::middleware('auth:sanctum')->group(function () {
         // Consulta de ubicaciones
         Route::get('/locations/current', [LocationController::class, 'current']);
         Route::get('/locations/history', [LocationController::class, 'history']);
+
+        // Gestión de checkpoints
+        Route::get('/checkpoints', [CheckpointController::class, 'index']);
+        Route::get('/checkpoints/active', [CheckpointController::class, 'active']);
+        Route::post('/checkpoints', [CheckpointController::class, 'store']);
+        Route::get('/checkpoints/{id}', [CheckpointController::class, 'show']);
+        Route::put('/checkpoints/{id}', [CheckpointController::class, 'update']);
+        Route::patch('/checkpoints/{id}/toggle', [CheckpointController::class, 'toggleStatus']);
+        Route::delete('/checkpoints/{id}', [CheckpointController::class, 'destroy']);
+        Route::post('/checkpoints/check-location', [CheckpointController::class, 'checkLocation']);
     });
 });

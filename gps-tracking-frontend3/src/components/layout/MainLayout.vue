@@ -8,10 +8,11 @@
       v-if="authStore.isAuthenticated"
       @create-user="handleCreateUser"
       @create-device="handleCreateDevice"
+      @toggle-collapse="handleSidebarToggle"
     />
 
     <!-- Main Content Area -->
-    <main class="main-content" :class="{ 'with-sidebar': authStore.isAuthenticated }">
+    <main class="main-content" :class="mainContentClass">
       <div class="content-wrapper">
         <slot />
       </div>
@@ -23,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
 import NavBar from './NavBar.vue';
@@ -31,6 +33,7 @@ import FooterBar from './FooterBar.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
+const isSidebarCollapsed = ref(false);
 
 const handleCreateUser = () => {
   router.push('/admin/users?action=create');
@@ -39,6 +42,15 @@ const handleCreateUser = () => {
 const handleCreateDevice = () => {
   router.push('/admin/devices?action=create');
 };
+
+const handleSidebarToggle = (collapsed: boolean) => {
+  isSidebarCollapsed.value = collapsed;
+};
+
+const mainContentClass = computed(() => ({
+  'with-sidebar': authStore.isAuthenticated,
+  'sidebar-collapsed': isSidebarCollapsed.value
+}));
 </script>
 
 <style scoped>
@@ -59,6 +71,10 @@ const handleCreateDevice = () => {
 
 .main-content.with-sidebar {
   margin-left: var(--sidebar-width);
+}
+
+.main-content.with-sidebar.sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed);
 }
 
 .content-wrapper {
