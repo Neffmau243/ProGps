@@ -20,9 +20,17 @@ cd gps-tracking-backend
 php artisan queue:work
 ```
 
-### Terminal 4: Vue.js (Frontend)
+### Terminal 4: Vue.js (Frontend Original - Vuetify)
 ```powershell
 cd gps-tracking-frontend
+npm run dev
+```
+
+**O bien:**
+
+### Terminal 4 (Alternativa): Frontend3 (CSS Custom)
+```powershell
+cd gps-tracking-frontend3
 npm run dev
 ```
 
@@ -58,22 +66,41 @@ Processing jobs...
 
 **Terminal 4:**
 ```
-Local: http://localhost:5173/
+Local: http://localhost:5174/ (frontend original)
+```
+**O bien:**
+```
+Local: http://localhost:5173/ (frontend3)
 ```
 
 ---
 
 ## 🎉 Listo!
 
-Abre: `http://localhost:5173`
+Abre según el frontend que uses:
+
+**Frontend Original (Vuetify)**: `http://localhost:5174`
+
+**Frontend3 (CSS Custom)**: `http://localhost:5173`
 
 Login Admin:
-- Email: `admin@example.com`
+- Email: `admin@gps.com`
 - Password: `password`
 
 Login Empleado:
-- Email: `maria@example.com`
+- Email: `maria@gps.com`
 - Password: `password`
+
+---
+
+## 📱 Ambos frontends ahora tienen:
+
+✅ Dashboard Admin con mapa en tiempo real  
+✅ Dashboard Empleado con GPS tracking funcional  
+✅ Gestión de usuarios y dispositivos  
+✅ Historial de rutas con estadísticas  
+✅ WebSocket en tiempo real (Reverb)  
+✅ Autenticación con roles  
 
 ---
 

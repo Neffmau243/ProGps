@@ -10,7 +10,7 @@
           <v-col cols="12" md="8" style="height: 100%;">
             <v-card style="height: 100%;" elevation="8" class="map-card">
               <v-card-title class="bg-gradient-primary text-white">
-                <v-icon class="mr-2" color="white">mdi-map-marker-multiple</v-icon>
+                <SolarIcon name="map-point-wave" :size="24" class="mr-2" style="linear" />
                 <span class="font-weight-bold">Ubicaciones en Tiempo Real</span>
                 <v-spacer />
                 <v-chip 
@@ -19,7 +19,7 @@
                   variant="flat"
                   class="pulse-chip mr-2"
                 >
-                  <v-icon start size="small">{{ wsConnected ? 'mdi-wifi' : 'mdi-wifi-off' }}</v-icon>
+                  <SolarIcon :name="wsConnected ? 'wifi-router' : 'wifi-router-minimalistic'" :size="16" class="mr-1" />
                   {{ wsConnected ? 'WebSocket Activo' : 'Conectando...' }}
                 </v-chip>
                 <v-chip 
@@ -27,7 +27,7 @@
                   size="small"
                   variant="flat"
                 >
-                  <v-icon start size="small" color="primary">mdi-map-marker</v-icon>
+                  <SolarIcon name="map-point" :size="16" class="text-primary mr-1" />
                   <span class="text-primary font-weight-bold">{{ locations.length }}</span>
                 </v-chip>
               </v-card-title>
@@ -42,7 +42,7 @@
             <!-- Dispositivos Activos -->
             <v-card elevation="8" class="devices-card">
               <v-card-title class="bg-gradient-secondary text-white">
-                <v-icon class="mr-2" color="white">mdi-cellphone-link</v-icon>
+                <SolarIcon name="devices" :size="24" class="mr-2" style="linear" />
                 <span class="font-weight-bold">Dispositivos Activos</span>
                 <v-spacer />
                 <v-chip color="white" variant="flat" size="small">
@@ -60,7 +60,7 @@
                   >
                     <template v-slot:prepend>
                       <v-avatar :color="getTimeColor(location.minutes_ago)" size="48" class="pulse-avatar">
-                        <v-icon color="white" size="24">mdi-map-marker</v-icon>
+                        <SolarIcon name="gps" :size="24" style="linear" />
                       </v-avatar>
                     </template>
 
@@ -68,7 +68,7 @@
                       {{ location.device_name }}
                     </v-list-item-title>
                     <v-list-item-subtitle class="d-flex align-center mt-1">
-                      <v-icon size="small" class="mr-1">mdi-account</v-icon>
+                      <SolarIcon name="user" :size="14" class="mr-1" />
                       {{ location.user_name }}
                     </v-list-item-subtitle>
 
@@ -79,7 +79,7 @@
                           :color="getTimeColor(location.minutes_ago)"
                           variant="flat"
                         >
-                          <v-icon start size="small">mdi-clock-outline</v-icon>
+                          <SolarIcon name="clock-circle" :size="14" class="mr-1" />
                           {{ formatTimeAgo(location.minutes_ago) }}
                         </v-chip>
                       </div>
@@ -89,7 +89,7 @@
 
                 <v-alert v-else type="info" variant="tonal" class="ma-4">
                   <template v-slot:prepend>
-                    <v-icon>mdi-information</v-icon>
+                    <SolarIcon name="info-circle" :size="24" />
                   </template>
                   No hay dispositivos activos en este momento
                 </v-alert>
@@ -99,7 +99,7 @@
             <!-- Estadísticas -->
             <v-card class="mt-4" elevation="8">
               <v-card-title class="bg-gradient-info text-white">
-                <v-icon class="mr-2" color="white">mdi-chart-line</v-icon>
+                <SolarIcon name="chart" :size="24" class="mr-2" style="linear" />
                 <span class="font-weight-bold">Estadísticas</span>
               </v-card-title>
               <v-card-text class="pa-4">
@@ -107,7 +107,7 @@
                   <v-col cols="6">
                     <v-card variant="tonal" color="primary" class="stat-card" elevation="0">
                       <v-card-text class="text-center pa-4">
-                        <v-icon size="32" color="primary" class="mb-2">mdi-cellphone</v-icon>
+                        <SolarIcon name="smartphone" :size="32" class="text-primary mb-2" />
                         <div class="text-h4 font-weight-bold">{{ locations.length }}</div>
                         <div class="text-caption text-grey">Total Dispositivos</div>
                       </v-card-text>
@@ -116,7 +116,7 @@
                   <v-col cols="6">
                     <v-card variant="tonal" color="success" class="stat-card" elevation="0">
                       <v-card-text class="text-center pa-4">
-                        <v-icon size="32" color="success" class="mb-2">mdi-check-circle</v-icon>
+                        <SolarIcon name="check-circle" :size="32" class="text-success mb-2" />
                         <div class="text-h4 font-weight-bold">{{ activeDevices }}</div>
                         <div class="text-caption text-grey">Activos Ahora</div>
                       </v-card-text>
@@ -140,6 +140,7 @@ import echo from '@/plugins/echo'
 import AppHeader from '@/components/common/AppHeader.vue'
 import AppSidebar from '@/components/common/AppSidebar.vue'
 import MapView from '@/components/maps/MapView.vue'
+import SolarIcon from '@/components/SolarIcon.vue'
 
 const toast = useToast()
 const locations = ref<any[]>([])

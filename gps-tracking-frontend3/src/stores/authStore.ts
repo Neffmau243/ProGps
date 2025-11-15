@@ -17,7 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Getters
   const isAuthenticated = computed(() => !!token.value && !!user.value);
   const isAdmin = computed(() => user.value?.role === 'admin');
-  const isEmployee = computed(() => user.value?.role === 'employee');
+  const isEmployee = computed(() => user.value?.role === 'empleado');
 
   // Actions
   async function login(credentials: LoginRequest) {

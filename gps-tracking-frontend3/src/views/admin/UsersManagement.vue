@@ -9,7 +9,7 @@
             <p class="hero-subtitle">Administra todos los usuarios del sistema</p>
           </div>
           <button class="btn-primary" @click="openCreateModal">
-            <span class="btn-icon">➕</span>
+            <i class="bi bi-plus-circle btn-icon"></i>
             Crear Usuario
           </button>
         </div>
@@ -18,7 +18,7 @@
       <!-- Filters and Search -->
       <div class="filters-section">
         <div class="search-box">
-          <span class="search-icon">🔍</span>
+          <i class="bi bi-search search-icon"></i>
           <input
             v-model="searchQuery"
             type="text"
@@ -44,8 +44,8 @@
           </button>
           <button 
             class="filter-btn"
-            :class="{ active: filterRole === 'employee' }"
-            @click="filterRole = 'employee'"
+            :class="{ active: filterRole === 'empleado' }"
+            @click="filterRole = 'empleado'"
           >
             Empleados ({{ employeeCount }})
           </button>
@@ -80,7 +80,8 @@
               <td class="user-email">{{ user.email }}</td>
               <td>
                 <span class="role-badge" :class="`role-${user.role}`">
-                  {{ user.role === 'admin' ? '👑 Admin' : '👤 Empleado' }}
+                  <i :class="['bi', user.role === 'admin' ? 'bi-star-fill' : 'bi-person']"></i>
+                  {{ user.role === 'admin' ? 'Admin' : 'Empleado' }}
                 </span>
               </td>
               <td class="user-date">{{ formatDate(user.created_at) }}</td>
@@ -90,14 +91,14 @@
                   @click="openEditModal(user)"
                   title="Editar"
                 >
-                  ✏️
+                  <i class="bi bi-pencil"></i>
                 </button>
                 <button 
                   class="action-btn delete-btn" 
                   @click="confirmDelete(user)"
                   title="Eliminar"
                 >
-                  🗑️
+                  <i class="bi bi-trash"></i>
                 </button>
               </td>
             </tr>
@@ -107,7 +108,7 @@
 
       <!-- Empty State -->
       <div v-else class="empty-state">
-        <span class="empty-icon">👥</span>
+        <i class="bi bi-people empty-icon"></i>
         <h3>No se encontraron usuarios</h3>
         <p>{{ searchQuery ? 'Intenta con otro término de búsqueda' : 'Crea tu primer usuario' }}</p>
       </div>
@@ -179,7 +180,7 @@
           </div>
 
           <div v-if="formError" class="form-error">
-            <span class="error-icon">⚠️</span>
+            <i class="bi bi-exclamation-triangle error-icon"></i>
             {{ formError }}
           </div>
         </form>
@@ -209,7 +210,7 @@
         @close="cancelDelete"
       >
         <div class="delete-confirmation">
-          <span class="delete-icon">⚠️</span>
+          <i class="bi bi-exclamation-triangle delete-icon"></i>
           <p>¿Estás seguro de que deseas eliminar al usuario <strong>{{ userToDelete?.name }}</strong>?</p>
           <p class="delete-warning">Esta acción no se puede deshacer.</p>
         </div>
@@ -249,7 +250,7 @@ const toast = ref<InstanceType<typeof ToastNotification>>();
 
 // State
 const searchQuery = ref('');
-const filterRole = ref<'admin' | 'employee' | null>(null);
+const filterRole = ref<'admin' | 'empleado' | null>(null);
 const isModalOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const modalMode = ref<'create' | 'edit'>('create');
@@ -264,7 +265,7 @@ const formData = ref({
   email: '',
   password: '',
   password_confirmation: '',
-  role: '' as 'admin' | 'employee' | '',
+  role: '' as 'admin' | 'empleado' | '',
 });
 
 // Computed
@@ -291,7 +292,7 @@ const filteredUsers = computed(() => {
 });
 
 const adminCount = computed(() => users.value.filter(u => u.role === 'admin').length);
-const employeeCount = computed(() => users.value.filter(u => u.role === 'employee').length);
+const employeeCount = computed(() => users.value.filter(u => u.role === 'empleado').length);
 
 // Methods
 const getUserInitial = (name: string) => {

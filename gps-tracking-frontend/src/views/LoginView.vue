@@ -7,7 +7,7 @@
             <!-- Logo y Título -->
             <div class="text-center mb-8 animate-fade-in">
               <div class="logo-container">
-                <v-icon size="80" color="white" class="logo-icon">mdi-map-marker-radius</v-icon>
+                <SolarIcon name="map-point-wave" :size="80" style="linear" class="logo-icon" />
               </div>
               <h1 class="text-h3 font-weight-bold text-white mt-4 text-shadow">GPS Tracking</h1>
               <p class="text-subtitle-1 text-white-70 mt-2">Sistema de Rastreo en Tiempo Real</p>
@@ -23,33 +23,45 @@
                     v-model="email"
                     label="Correo Electrónico"
                     type="email"
-                    prepend-inner-icon="mdi-email-outline"
                     variant="outlined"
                     :error-messages="errors.email"
                     color="primary"
                     class="mb-2"
                     required
                     density="comfortable"
-                  />
+                  >
+                    <template #prepend-inner>
+                      <SolarIcon name="letter" :size="20" class="mr-1" />
+                    </template>
+                  </v-text-field>
 
                   <v-text-field
                     v-model="password"
                     label="Contraseña"
                     :type="showPassword ? 'text' : 'password'"
-                    prepend-inner-icon="mdi-lock-outline"
-                    :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
-                    @click:append-inner="showPassword = !showPassword"
                     variant="outlined"
                     :error-messages="errors.password"
                     color="primary"
                     class="mb-4"
                     required
                     density="comfortable"
-                  />
+                  >
+                    <template #prepend-inner>
+                      <SolarIcon name="lock-password" :size="20" class="mr-1" />
+                    </template>
+                    <template #append-inner>
+                      <SolarIcon 
+                        :name="showPassword ? 'eye' : 'eye-closed'" 
+                        :size="20" 
+                        @click="showPassword = !showPassword"
+                        style="cursor: pointer;"
+                      />
+                    </template>
+                  </v-text-field>
 
                   <v-alert v-if="errorMessage" type="error" variant="tonal" class="mb-4">
                     <template v-slot:prepend>
-                      <v-icon>mdi-alert-circle</v-icon>
+                      <SolarIcon name="danger-triangle" :size="24" />
                     </template>
                     {{ errorMessage }}
                   </v-alert>
@@ -63,7 +75,7 @@
                     class="mb-4 text-none font-weight-bold"
                     elevation="2"
                   >
-                    <v-icon start>mdi-login</v-icon>
+                    <SolarIcon name="login" :size="20" class="mr-2" />
                     Iniciar Sesión
                   </v-btn>
                 </v-form>
@@ -80,7 +92,7 @@
             <v-card class="mt-4 animate-fade-in-delay" variant="tonal" rounded="lg">
               <v-card-text class="pa-4">
                 <div class="text-center mb-2">
-                  <v-icon color="info" size="small">mdi-information</v-icon>
+                  <SolarIcon name="info-circle" :size="20" class="text-info" />
                   <span class="text-subtitle-2 font-weight-bold ml-2">Credenciales de Prueba</span>
                 </div>
                 <v-row dense>
@@ -114,6 +126,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'vue-toastification'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
+import SolarIcon from '@/components/SolarIcon.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

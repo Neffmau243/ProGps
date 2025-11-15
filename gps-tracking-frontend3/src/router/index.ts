@@ -16,6 +16,8 @@ const RealTimeMap = () => import('@/views/admin/RealTimeMap.vue');
 const RouteHistory = () => import('@/views/admin/RouteHistory.vue');
 const MyDevices = () => import('@/views/employee/MyDevices.vue');
 const ProfileView = () => import('@/views/profile/ProfileView.vue');
+const IconsExample = () => import('@/components/examples/IconsExample.vue');
+const BootstrapIconsExample = () => import('@/components/examples/BootstrapIconsExample.vue');
 
 const routes: RouteRecordRaw[] = [
   {
@@ -84,6 +86,19 @@ const routes: RouteRecordRaw[] = [
     name: 'Profile',
     component: ProfileView,
     meta: { requiresAuth: true },
+  },
+  // Examples (Development only)
+  {
+    path: '/examples/icons',
+    name: 'IconsExample',
+    component: IconsExample,
+    meta: { requiresAuth: false, isPublic: true },
+  },
+  {
+    path: '/examples/bootstrap-icons',
+    name: 'BootstrapIconsExample',
+    component: BootstrapIconsExample,
+    meta: { requiresAuth: false, isPublic: true },
   },
 ];
 

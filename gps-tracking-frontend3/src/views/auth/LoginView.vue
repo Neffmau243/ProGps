@@ -43,7 +43,7 @@
 
           <!-- Error Message -->
           <div v-if="error" class="error-message">
-            <span class="error-icon">⚠️</span>
+            <i class="bi bi-exclamation-triangle error-icon"></i>
             {{ error }}
           </div>
 
@@ -65,7 +65,7 @@
             <strong>Admin:</strong> admin@gps.com / password
           </div>
           <div class="demo-item">
-            <strong>Empleado:</strong> juan@gps.com / password
+            <strong>Empleado:</strong> maria@gps.com / password
           </div>
         </div>
       </div>

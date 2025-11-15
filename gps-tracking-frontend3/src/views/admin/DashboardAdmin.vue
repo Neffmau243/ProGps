@@ -15,7 +15,7 @@
 
         <div v-else class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon">👥</div>
+            <i class="bi bi-people stat-icon"></i>
             <div class="stat-content">
               <div class="stat-value">{{ statistics.totalUsers }}</div>
               <div class="stat-label">Usuarios</div>
@@ -23,7 +23,7 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">📱</div>
+            <i class="bi bi-phone stat-icon"></i>
             <div class="stat-content">
               <div class="stat-value">{{ statistics.totalDevices }}</div>
               <div class="stat-label">Dispositivos</div>
@@ -31,7 +31,7 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">📍</div>
+            <i class="bi bi-geo-alt stat-icon"></i>
             <div class="stat-content">
               <div class="stat-value">{{ currentLocations.length }}</div>
               <div class="stat-label">Ubicaciones</div>
@@ -39,7 +39,7 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">✅</div>
+            <i class="bi bi-check-circle stat-icon"></i>
             <div class="stat-content">
               <div class="stat-value">{{ statistics.activeDevices }}</div>
               <div class="stat-label">Activos</div>
@@ -52,7 +52,7 @@
       <div class="map-section">
         <div class="map-header">
           <h2 class="section-title">
-            <span class="title-icon">🗺️</span>
+            <i class="bi bi-map title-icon"></i>
             Ubicaciones en Tiempo Real
           </h2>
           <div class="map-header-right">
@@ -62,11 +62,12 @@
             >
               <span class="ws-dot"></span>
               <span class="ws-text">
-                {{ wsConnected ? '🔌 WebSocket Activo' : '⏳ Conectando...' }}
+                <i :class="['bi', wsConnected ? 'bi-plug' : 'bi-hourglass-split']"></i>
+                {{ wsConnected ? 'WebSocket Activo' : 'Conectando...' }}
               </span>
             </div>
             <div class="locations-badge">
-              <span class="badge-icon">📍</span>
+              <i class="bi bi-geo-alt badge-icon"></i>
               <span class="badge-count">{{ currentLocations.length }}</span>
             </div>
           </div>
@@ -81,7 +82,7 @@
             />
             <div v-else class="map-placeholder">
               <div class="placeholder-content">
-                <span class="placeholder-icon">📍</span>
+                <i class="bi bi-geo-alt placeholder-icon"></i>
                 <h3>Sin Ubicaciones</h3>
                 <p>No hay dispositivos reportando ubicación en este momento</p>
               </div>
@@ -92,7 +93,7 @@
           <div class="devices-panel">
             <div class="panel-header">
               <h3 class="panel-title">
-                <span class="panel-icon">📱</span>
+                <i class="bi bi-phone panel-icon"></i>
                 Dispositivos Activos
               </h3>
               <div class="panel-badge">{{ currentLocations.length }}</div>
@@ -105,12 +106,12 @@
                 class="device-item"
               >
                 <div class="device-avatar" :class="getTimeColorClass(location.minutes_ago)">
-                  <span class="avatar-icon">📍</span>
+                  <i class="bi bi-geo-alt avatar-icon"></i>
                 </div>
                 <div class="device-info">
                   <div class="device-name">{{ location.device_name }}</div>
                   <div class="device-user">
-                    <span class="user-icon">👤</span>
+                    <i class="bi bi-person user-icon"></i>
                     {{ location.user_name }}
                   </div>
                 </div>
@@ -119,14 +120,14 @@
                     class="time-badge" 
                     :class="getTimeColorClass(location.minutes_ago)"
                   >
-                    <span class="time-icon">🕐</span>
+                    <i class="bi bi-clock time-icon"></i>
                     {{ formatTimeAgo(location.minutes_ago) }}
                   </div>
                 </div>
               </div>
 
               <div v-if="currentLocations.length === 0" class="no-devices">
-                <span class="no-devices-icon">ℹ️</span>
+                <i class="bi bi-info-circle no-devices-icon"></i>
                 <p>No hay dispositivos activos en este momento</p>
               </div>
             </div>
@@ -137,20 +138,20 @@
       <!-- Quick Actions -->
       <div class="section">
         <h2 class="section-title">
-          <span class="title-icon">⚡</span>
+          <i class="bi bi-lightning title-icon"></i>
           Acciones Rápidas
         </h2>
         <div class="quick-actions">
           <router-link to="/admin/users" class="action-btn">
-            <span class="action-icon">👥</span>
+            <i class="bi bi-people action-icon"></i>
             <span class="action-label">Gestionar Usuarios</span>
           </router-link>
           <router-link to="/admin/devices" class="action-btn">
-            <span class="action-icon">📱</span>
+            <i class="bi bi-phone action-icon"></i>
             <span class="action-label">Gestionar Dispositivos</span>
           </router-link>
           <router-link to="/admin/history" class="action-btn">
-            <span class="action-icon">📍</span>
+            <i class="bi bi-clock-history action-icon"></i>
             <span class="action-label">Ver Historial</span>
           </router-link>
           <router-link to="/profile" class="action-btn">

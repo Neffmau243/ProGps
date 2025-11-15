@@ -20,7 +20,7 @@ export function getDeviceStatusLabel(status: 'activo' | 'inactivo' | 'mantenimie
 export function getRoleLabel(role: string): string {
   const labels = {
     admin: 'Administrador',
-    employee: 'Empleado',
+    empleado: 'Empleado',
   };
   return labels[role as keyof typeof labels] || role;
 }

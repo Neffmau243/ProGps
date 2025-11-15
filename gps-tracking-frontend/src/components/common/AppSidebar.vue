@@ -2,7 +2,7 @@
   <v-navigation-drawer permanent width="280" class="app-sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
-      <v-icon size="32" color="primary">mdi-view-dashboard-variant</v-icon>
+      <SolarIcon name="chart-square" :size="32" class="text-primary" />
       <div class="header-text">
         <div class="header-title">Panel de Control</div>
         <div class="header-subtitle">{{ authStore.user?.role === 'admin' ? 'Administrador' : 'Usuario' }}</div>
@@ -22,14 +22,18 @@
       >
         <template v-slot:prepend>
           <v-avatar :color="isActive(item.to) ? 'primary' : 'grey-lighten-2'" size="40" class="nav-icon">
-            <v-icon :color="isActive(item.to) ? 'white' : 'grey-darken-1'" size="20">{{ item.icon }}</v-icon>
+            <SolarIcon 
+              :name="item.icon" 
+              :size="20" 
+              :class="isActive(item.to) ? 'text-white' : 'text-grey-darken-1'"
+            />
           </v-avatar>
         </template>
 
         <v-list-item-title class="nav-title">{{ item.title }}</v-list-item-title>
 
         <template v-slot:append v-if="isActive(item.to)">
-          <v-icon color="primary" size="20">mdi-chevron-right</v-icon>
+          <SolarIcon name="arrow-right" :size="20" class="text-primary" />
         </template>
       </v-list-item>
     </v-list>
@@ -40,7 +44,7 @@
         <v-card variant="tonal" color="primary" class="info-card">
           <v-card-text class="pa-3">
             <div class="d-flex align-center">
-              <v-icon size="24" color="primary" class="mr-2">mdi-information</v-icon>
+              <SolarIcon name="info-circle" :size="24" class="text-primary mr-2" />
               <div>
                 <div class="text-caption font-weight-bold">Versión Alfa</div>
                 <div class="text-caption">v1.0.0</div>
@@ -57,6 +61,8 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import SolarIcon from '@/components/SolarIcon.vue'
+import { SOLAR_ICONS } from '@/utils/solarIcons'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -64,10 +70,10 @@ const authStore = useAuthStore()
 const menuItems = computed(() => {
   if (authStore.isAdmin) {
     return [
-      { title: 'Dashboard', icon: 'mdi-view-dashboard', to: '/admin/dashboard' },
-      { title: 'Usuarios', icon: 'mdi-account-multiple', to: '/admin/users' },
-      { title: 'Dispositivos', icon: 'mdi-cellphone-link', to: '/admin/devices' },
-      { title: 'Historial', icon: 'mdi-history', to: '/admin/history' }
+      { title: 'Dashboard', icon: SOLAR_ICONS.HOME, to: '/admin/dashboard' },
+      { title: 'Usuarios', icon: SOLAR_ICONS.USERS, to: '/admin/users' },
+      { title: 'Dispositivos', icon: SOLAR_ICONS.DEVICES, to: '/admin/devices' },
+      { title: 'Historial', icon: SOLAR_ICONS.HISTORY, to: '/admin/history' }
     ]
   }
   return []

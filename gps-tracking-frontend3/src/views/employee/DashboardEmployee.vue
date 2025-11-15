@@ -14,7 +14,7 @@
             @click="toggleGPS"
             :disabled="isLoading"
           >
-            <span class="gps-icon">📍</span>
+            <i class="bi bi-geo-alt gps-icon"></i>
             <span class="gps-status">{{ gpsActive ? 'GPS ACTIVO' : 'GPS INACTIVO' }}</span>
             <span v-if="gpsActive" class="pulse-indicator"></span>
           </button>
@@ -29,7 +29,7 @@
       <div class="status-grid">
         <!-- Active Device Card -->
         <div class="status-card">
-          <div class="card-icon">📱</div>
+          <i class="bi bi-phone card-icon"></i>
           <div class="card-content">
             <h3 class="card-title">Dispositivo Activo</h3>
             <p class="card-value">{{ activeDevice || 'Ninguno' }}</p>
@@ -38,16 +38,16 @@
 
         <!-- Last Location Card -->
         <div class="status-card">
-          <div class="card-icon">🗺️</div>
+          <i class="bi bi-map card-icon"></i>
           <div class="card-content">
             <h3 class="card-title">Última Ubicación</h3>
-            <p class="card-value">{{ lastLocation || 'Sin datos' }}</p>
+            <p class="card-value">{{ lastLocationText }}</p>
           </div>
         </div>
 
         <!-- Tracking Time Card -->
         <div class="status-card">
-          <div class="card-icon">⏱️</div>
+          <i class="bi bi-stopwatch card-icon"></i>
           <div class="card-content">
             <h3 class="card-title">Tiempo de Rastreo</h3>
             <p class="card-value">{{ trackingTime }}</p>
@@ -65,7 +65,29 @@
         </div>
 
         <div class="devices-preview">
-          <p class="text-muted">Cargando dispositivos...</p>
+          <div v-if="devices.length === 0" class="text-muted">
+            No tienes dispositivos asignados
+          </div>
+          <div v-else class="devices-grid">
+            <div 
+              v-for="device in devices.slice(0, 3)" 
+              :key="device.id"
+              class="device-preview-card"
+              :class="{ active: device.id === selectedDeviceId }"
+            >
+              <i class="bi bi-phone device-icon"></i>
+              <div class="device-info">
+                <h4>{{ device.name }}</h4>
+                <p class="device-serial">{{ device.serial }}</p>
+                <span 
+                  class="device-status-badge"
+                  :class="device.status"
+                >
+                  {{ device.status }}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -73,27 +95,115 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import MainLayout from '@/components/layout/MainLayout.vue';
+import gpsService from '@/services/gpsService';
+import { useDevicesStore } from '@/stores/devicesStore';
+
+const devicesStore = useDevicesStore();
 
 const gpsActive = ref(false);
 const isLoading = ref(false);
-const activeDevice = ref('Dispositivo 001');
-const lastLocation = ref('');
+const lastLocation = ref<any>(null);
 const trackingTime = ref('0h 0m');
+const trackingStartTime = ref<Date | null>(null);
+const devices = ref<any[]>([]);
+const selectedDeviceId = ref<number | null>(null);
+const intervalSeconds = ref(30);
+
+const activeDevice = computed(() => {
+  const device = devices.value.find(d => d.id === selectedDeviceId.value);
+  return device ? device.name : 'Sin dispositivo';
+});
+
+const lastLocationText = computed(() => {
+  if (!lastLocation.value) return 'Sin datos';
+  return `${lastLocation.value.latitude.toFixed(6)}, ${lastLocation.value.longitude.toFixed(6)}`;
+});
+
+const loadDevices = async () => {
+  try {
+    await devicesStore.fetchDevices();
+    devices.value = devicesStore.devices;
+    
+    if (devices.value.length > 0) {
+      selectedDeviceId.value = devices.value[0].id;
+    }
+  } catch (error) {
+    console.error('Error al cargar dispositivos:', error);
+  }
+};
+
+const updateTrackingTime = () => {
+  if (trackingStartTime.value && gpsActive.value) {
+    const diff = Date.now() - trackingStartTime.value.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    trackingTime.value = `${hours}h ${minutes}m`;
+  }
+};
 
 const toggleGPS = async () => {
+  if (!gpsService.isSupported()) {
+    alert('Tu navegador no soporta geolocalización');
+    return;
+  }
+
+  if (!selectedDeviceId.value) {
+    alert('No tienes un dispositivo asignado');
+    return;
+  }
+
+  const device = devices.value.find(d => d.id === selectedDeviceId.value);
+  if (device && device.status !== 'activo') {
+    alert('Tu dispositivo no está activo');
+    return;
+  }
+
   isLoading.value = true;
-  
-  // Simulate API call
-  setTimeout(() => {
-    gpsActive.value = !gpsActive.value;
+
+  try {
     if (gpsActive.value) {
-      lastLocation.value = 'Actualizando...';
+      gpsService.stopTracking();
+      gpsActive.value = false;
+      trackingStartTime.value = null;
+      console.log('🛑 Rastreo detenido');
+    } else {
+      gpsService.startTracking(selectedDeviceId.value, intervalSeconds.value);
+      gpsActive.value = true;
+      trackingStartTime.value = new Date();
+      console.log('▶️ Rastreo iniciado');
     }
+  } catch (error: any) {
+    console.error('Error al cambiar estado GPS:', error);
+    alert(error.message || 'Error al cambiar estado del GPS');
+  } finally {
     isLoading.value = false;
-  }, 1000);
+  }
 };
+
+onMounted(async () => {
+  await loadDevices();
+
+  gpsService.onSuccess((location) => {
+    lastLocation.value = location;
+    console.log('✅ Callback: Ubicación actualizada en UI');
+  });
+
+  gpsService.onError((error) => {
+    console.error('❌ Callback: Error GPS:', error);
+    alert(`Error GPS: ${error}`);
+  });
+
+  // Actualizar tiempo de rastreo cada minuto
+  setInterval(updateTrackingTime, 60000);
+});
+
+onBeforeUnmount(() => {
+  if (gpsActive.value) {
+    gpsService.stopTracking();
+  }
+});
 </script>
 
 <style scoped>
@@ -270,5 +380,77 @@ const toggleGPS = async () => {
   background-color: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
+}
+
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-lg);
+  text-align: left;
+}
+
+.device-preview-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.device-preview-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.device-preview-card.active {
+  border-color: var(--color-neon-green);
+  box-shadow: var(--glow-neon-subtle);
+}
+
+.device-icon {
+  font-size: 36px;
+}
+
+.device-info h4 {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.device-serial {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.device-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+}
+
+.device-status-badge.activo {
+  background-color: rgba(192, 241, 28, 0.2);
+  color: var(--color-neon-green);
+}
+
+.device-status-badge.inactivo {
+  background-color: rgba(255, 0, 0, 0.2);
+  color: #ff4444;
+}
+
+.device-status-badge.mantenimiento {
+  background-color: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+}
+
+.text-muted {
+  color: var(--color-text-muted);
 }
 </style>

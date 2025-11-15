@@ -9,7 +9,7 @@
             <p class="hero-subtitle">Administra todos los dispositivos GPS del sistema</p>
           </div>
           <button class="btn-primary" @click="openCreateModal">
-            <span class="btn-icon">➕</span>
+            <i class="bi bi-plus-circle btn-icon"></i>
             Crear Dispositivo
           </button>
         </div>
@@ -18,7 +18,7 @@
       <!-- Filters and Search -->
       <div class="filters-section">
         <div class="search-box">
-          <span class="search-icon">🔍</span>
+          <i class="bi bi-search search-icon"></i>
           <input
             v-model="searchQuery"
             type="text"
@@ -73,7 +73,7 @@
           class="device-card"
         >
           <div class="device-header">
-            <div class="device-icon">📱</div>
+            <i class="bi bi-phone device-icon"></i>
             <div 
               class="device-status-dot" 
               :class="`status-${device.status}`"
@@ -104,21 +104,21 @@
               @click="openStatusModal(device)"
               title="Cambiar estado"
             >
-              🔄
+              <i class="bi bi-arrow-clockwise"></i>
             </button>
             <button 
               class="device-action-btn"
               @click="openEditModal(device)"
               title="Editar"
             >
-              ✏️
+              <i class="bi bi-pencil"></i>
             </button>
             <button 
               class="device-action-btn delete"
               @click="confirmDelete(device)"
               title="Eliminar"
             >
-              🗑️
+              <i class="bi bi-trash"></i>
             </button>
           </div>
         </div>
@@ -126,7 +126,7 @@
 
       <!-- Empty State -->
       <div v-else class="empty-state">
-        <span class="empty-icon">📱</span>
+        <i class="bi bi-phone empty-icon"></i>
         <h3>No se encontraron dispositivos</h3>
         <p>{{ searchQuery ? 'Intenta con otro término de búsqueda' : 'Crea tu primer dispositivo' }}</p>
       </div>
@@ -182,7 +182,7 @@
           </div>
 
           <div v-if="formError" class="form-error">
-            <span class="error-icon">⚠️</span>
+            <i class="bi bi-exclamation-triangle error-icon"></i>
             {{ formError }}
           </div>
         </form>
@@ -253,7 +253,7 @@
         @close="cancelDelete"
       >
         <div class="delete-confirmation">
-          <span class="delete-icon">⚠️</span>
+          <i class="bi bi-exclamation-triangle delete-icon"></i>
           <p>¿Estás seguro de que deseas eliminar el dispositivo <strong>{{ deviceToDelete?.name }}</strong>?</p>
           <p class="delete-warning">Esta acción no se puede deshacer.</p>
         </div>

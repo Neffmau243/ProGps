@@ -6,6 +6,7 @@ import App from './App.vue'
 // Import global styles
 import './assets/styles/global.css'
 import 'leaflet/dist/leaflet.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const app = createApp(App)
 

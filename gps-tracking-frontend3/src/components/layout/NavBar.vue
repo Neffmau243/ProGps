@@ -11,23 +11,23 @@
         <!-- Admin Navigation -->
         <template v-if="authStore.isAdmin">
           <router-link to="/admin/dashboard" class="nav-item">
-            <span class="nav-icon">📊</span>
+            <i class="bi bi-speedometer2 nav-icon"></i>
             Dashboard
           </router-link>
           <router-link to="/admin/users" class="nav-item">
-            <span class="nav-icon">👥</span>
+            <i class="bi bi-people nav-icon"></i>
             Usuarios
           </router-link>
           <router-link to="/admin/devices" class="nav-item">
-            <span class="nav-icon">📱</span>
+            <i class="bi bi-phone nav-icon"></i>
             Dispositivos
           </router-link>
           <router-link to="/admin/map" class="nav-item">
-            <span class="nav-icon">🗺️</span>
+            <i class="bi bi-map nav-icon"></i>
             Mapa en Vivo
           </router-link>
           <router-link to="/admin/history" class="nav-item">
-            <span class="nav-icon">📍</span>
+            <i class="bi bi-clock-history nav-icon"></i>
             Historial
           </router-link>
         </template>
@@ -35,11 +35,11 @@
         <!-- Employee Navigation -->
         <template v-else-if="authStore.isEmployee">
           <router-link to="/employee/dashboard" class="nav-item">
-            <span class="nav-icon">📊</span>
+            <i class="bi bi-speedometer2 nav-icon"></i>
             Dashboard
           </router-link>
           <router-link to="/employee/my-devices" class="nav-item">
-            <span class="nav-icon">📱</span>
+            <i class="bi bi-phone nav-icon"></i>
             Mis Dispositivos
           </router-link>
         </template>
@@ -49,7 +49,7 @@
       <div v-if="authStore.isAuthenticated" class="navbar-right">
         <!-- Notifications (Future implementation) -->
         <button class="nav-notification" title="Notificaciones">
-          <span class="notification-icon">🔔</span>
+          <i class="bi bi-bell notification-icon"></i>
           <span class="notification-badge">3</span>
         </button>
 
@@ -57,16 +57,16 @@
         <div class="nav-user" @click="toggleUserMenu">
           <div class="user-avatar">{{ userInitial }}</div>
           <span class="user-name">{{ authStore.user?.name }}</span>
-          <span class="dropdown-arrow">▼</span>
+          <i class="bi bi-chevron-down dropdown-arrow"></i>
 
           <!-- Dropdown Menu -->
           <div v-if="showUserMenu" class="user-menu">
             <router-link to="/profile" class="menu-item" @click="showUserMenu = false">
-              <span class="menu-icon">👤</span>
+              <i class="bi bi-person menu-icon"></i>
               Perfil
             </router-link>
             <button class="menu-item" @click="handleLogout">
-              <span class="menu-icon">🚪</span>
+              <i class="bi bi-box-arrow-right menu-icon"></i>
               Cerrar Sesión
             </button>
           </div>
@@ -182,7 +182,7 @@ const handleLogout = async () => {
 }
 
 .nav-icon {
-  font-size: var(--font-size-lg);
+  font-size: 20px;
 }
 
 /* Right Side */
@@ -207,7 +207,7 @@ const handleLogout = async () => {
 }
 
 .notification-icon {
-  font-size: var(--font-size-xl);
+  font-size: 24px;
 }
 
 .notification-badge {
@@ -260,7 +260,7 @@ const handleLogout = async () => {
 }
 
 .dropdown-arrow {
-  font-size: var(--font-size-xs);
+  font-size: 14px;
   color: var(--color-text-muted);
   transition: transform var(--transition-base);
 }
@@ -299,7 +299,7 @@ const handleLogout = async () => {
 }
 
 .menu-icon {
-  font-size: var(--font-size-lg);
+  font-size: 20px;
 }
 
 /* Responsive adjustments for smaller screens (future) */

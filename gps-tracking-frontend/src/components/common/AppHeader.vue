@@ -2,7 +2,7 @@
   <v-app-bar elevation="4" class="app-header">
     <template v-slot:prepend>
       <div class="logo-container">
-        <v-icon size="32" class="logo-icon">mdi-map-marker-radius</v-icon>
+        <SolarIcon name="gps" :size="32" class="logo-icon" style="linear" />
       </div>
     </template>
 
@@ -29,14 +29,14 @@
     <v-menu offset-y>
       <template v-slot:activator="{ props }">
         <v-btn icon v-bind="props" class="menu-btn">
-          <v-icon>mdi-dots-vertical</v-icon>
+          <SolarIcon name="menu-dots" :size="24" />
         </v-btn>
       </template>
       <v-list class="user-menu">
         <v-list-item @click="goToProfile" class="menu-item">
           <template v-slot:prepend>
             <v-avatar size="32" color="primary" class="mr-2">
-              <v-icon size="18" color="white">mdi-account</v-icon>
+              <SolarIcon name="user" :size="18" style="linear" />
             </v-avatar>
           </template>
           <v-list-item-title>Mi Perfil</v-list-item-title>
@@ -46,7 +46,7 @@
         <v-list-item @click="handleLogout" class="menu-item logout-item">
           <template v-slot:prepend>
             <v-avatar size="32" color="error" class="mr-2">
-              <v-icon size="18" color="white">mdi-logout</v-icon>
+              <SolarIcon name="logout" :size="18" style="linear" />
             </v-avatar>
           </template>
           <v-list-item-title>Cerrar Sesión</v-list-item-title>
@@ -63,6 +63,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import ThemeToggle from './ThemeToggle.vue'
+import SolarIcon from '@/components/SolarIcon.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()

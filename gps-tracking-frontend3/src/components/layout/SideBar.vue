@@ -3,8 +3,8 @@
     <div class="sidebar-content">
       <!-- Collapse Button -->
       <button class="collapse-btn" @click="toggleSidebar" title="Colapsar/Expandir">
-        <span v-if="!isCollapsed">◀</span>
-        <span v-else>▶</span>
+        <i v-if="!isCollapsed" class="bi bi-chevron-left"></i>
+        <i v-else class="bi bi-chevron-right"></i>
       </button>
 
       <!-- Navigation Menu -->
@@ -12,34 +12,34 @@
         <!-- Admin Menu -->
         <template v-if="authStore.isAdmin">
           <router-link to="/admin/dashboard" class="sidebar-item">
-            <span class="sidebar-icon">📊</span>
+            <i class="bi bi-speedometer2 sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Dashboard</span>
           </router-link>
 
           <router-link to="/admin/users" class="sidebar-item">
-            <span class="sidebar-icon">👥</span>
+            <i class="bi bi-people sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Usuarios</span>
           </router-link>
 
           <router-link to="/admin/devices" class="sidebar-item">
-            <span class="sidebar-icon">📱</span>
+            <i class="bi bi-phone sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Dispositivos</span>
           </router-link>
 
           <router-link to="/admin/map" class="sidebar-item">
-            <span class="sidebar-icon">🗺️</span>
+            <i class="bi bi-map sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Mapa en Vivo</span>
           </router-link>
 
           <router-link to="/admin/history" class="sidebar-item">
-            <span class="sidebar-icon">📍</span>
+            <i class="bi bi-clock-history sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Historial</span>
           </router-link>
 
           <div v-if="!isCollapsed" class="sidebar-divider"></div>
 
           <router-link to="/profile" class="sidebar-item">
-            <span class="sidebar-icon">👤</span>
+            <i class="bi bi-person sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Perfil</span>
           </router-link>
         </template>
@@ -47,19 +47,19 @@
         <!-- Employee Menu -->
         <template v-else-if="authStore.isEmployee">
           <router-link to="/employee/dashboard" class="sidebar-item">
-            <span class="sidebar-icon">📊</span>
+            <i class="bi bi-speedometer2 sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Dashboard</span>
           </router-link>
 
           <router-link to="/employee/my-devices" class="sidebar-item">
-            <span class="sidebar-icon">📱</span>
+            <i class="bi bi-phone sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Mis Dispositivos</span>
           </router-link>
 
           <div v-if="!isCollapsed" class="sidebar-divider"></div>
 
           <router-link to="/profile" class="sidebar-item">
-            <span class="sidebar-icon">👤</span>
+            <i class="bi bi-person sidebar-icon"></i>
             <span v-if="!isCollapsed" class="sidebar-label">Perfil</span>
           </router-link>
         </template>
@@ -69,11 +69,11 @@
       <div v-if="authStore.isAdmin && !isCollapsed" class="sidebar-quick-actions">
         <div class="quick-actions-title">Accesos Rápidos</div>
         <button class="quick-action-btn" @click="$emit('create-user')">
-          <span class="quick-icon">➕</span>
+          <i class="bi bi-plus-circle quick-icon"></i>
           Nuevo Usuario
         </button>
         <button class="quick-action-btn" @click="$emit('create-device')">
-          <span class="quick-icon">➕</span>
+          <i class="bi bi-plus-circle quick-icon"></i>
           Nuevo Dispositivo
         </button>
       </div>
@@ -189,7 +189,7 @@ defineEmits(['create-user', 'create-device']);
 }
 
 .sidebar-icon {
-  font-size: var(--font-size-xl);
+  font-size: 24px;
   flex-shrink: 0;
 }
 
@@ -242,7 +242,7 @@ defineEmits(['create-user', 'create-device']);
 }
 
 .quick-icon {
-  font-size: var(--font-size-base);
+  font-size: 16px;
 }
 
 /* Scrollbar for Sidebar */
